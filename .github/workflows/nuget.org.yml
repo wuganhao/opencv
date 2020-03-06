@@ -27,7 +27,7 @@ jobs:
 
     - name: CMake
       working-directory: .
-      run: cmake -S . -B ./build
+      run: cmake -S . -B ./build -G "Visual Studio 16 2019"
 
     - name: Build Debug
       working-directory: ./build

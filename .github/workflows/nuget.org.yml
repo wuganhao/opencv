@@ -21,9 +21,9 @@ jobs:
 
     - name: Setup MSVC
       uses: ilammy/msvc-dev-cmd@v1
-      with:
+      #with:
       #  arch: amd64
-        toolset: 16.0
+      #  toolset: 16.0
 
     - name: CMake
       working-directory: .

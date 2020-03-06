@@ -25,9 +25,6 @@ jobs:
       #  arch: amd64
         toolset: 16.0
 
-    - name: Read version info
-      run: build\tools\msvs\getversion.bat
-
     - name: CMake
       working-directory: .
       run: cmake -S . -B ./build

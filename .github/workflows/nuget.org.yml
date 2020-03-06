@@ -17,11 +17,6 @@ jobs:
     - name: Setup NuGet
       uses: warrenbuckley/Setup-Nuget@v1
 
-    - name: Setup Build Number
-      uses: einaregilsson/build-number@v2
-      with:
-        token: ${{secrets.GITHUB_TOKEN}}
-
     - name: Setup MSVC
       uses: ilammy/msvc-dev-cmd@v1
       #with:
@@ -32,9 +27,9 @@ jobs:
       working-directory: .
       run: cmake -S . -B ./build -G "Visual Studio 16 2019"
 
-    - name: Build Debug
-      working-directory: ./build
-      run: msbuild /m /p:Configuration=Debug OpenCV.sln
+#    - name: Build Debug
+#      working-directory: ./build
+#      run: msbuild /m /p:Configuration=Debug OpenCV.sln
 
     - name: Build Release
       working-directory: ./build

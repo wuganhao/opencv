@@ -1,0 +1,47 @@
+name: Push Build
+
+on:
+  push:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Setup NuGet
+      uses: warrenbuckley/Setup-Nuget@v1
+
+    - name: Setup Build Number
+      uses: einaregilsson/build-number@v2
+      with:
+        token: ${{secrets.GITHUB_TOKEN}}
+
+    - name: Setup MSVC
+      uses: ilammy/msvc-dev-cmd@v1
+      with:
+      #  arch: amd64
+        toolset: 16.0
+
+    - name: Read version info
+      run: build\tools\msvs\getversion.bat
+
+    - name: CMake
+      working-directory: .
+      run: cmake -S . -B ./build
+
+    - name: Build Debug
+      working-directory: ./build
+      run: msbuild /m /p:Configuration=Debug OpenCV.sln
+
+    - name: Build Release
+      working-directory: ./build
+      run: msbuild /m /p:Configuration=Release OpenCV.sln
+
+#    - name: Build Push Nuget Package.
+#      if: github.ref == 'refs/heads/master'
+#     run: |
+#        build\tools\msvs\nugetpush.bat -OutputDirectory dist -properties repository=${{github.repository}}
+#        nuget push dist\*.nupkg -NoSymbols -source https://api.nuget.org/v3/index.json -apikey ${{ secrets.nuget_apikey }}

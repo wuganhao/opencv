@@ -9,7 +9,21 @@ trigger:
 pool:
   vmImage: 'windows-latest'
 
-steps:
-- script: |
-    make
-  displayName: 'make'
+- task: CMake@1
+  inputs:
+    workingDirectory: '.'
+    cmakeArgs: '-S . -B ./build -G "Visual Studio 16 2019"'
+  displayName: 'cmake'
+
+- task: MSBuild@1
+  inputs:
+    solution: 'build/OpenCV.sln'
+    msbuildArchitecture: 'x64'
+    configuration: 'Release'
+
+
+- task: MSBuild@1
+  inputs:
+    solution: 'build/OpenCV.sln'
+    msbuildArchitecture: 'x64'
+    configuration: 'Debug'

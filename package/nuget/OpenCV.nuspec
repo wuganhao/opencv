@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+  <metadata>
+    <id>wuganhao.OpenCV</id>
+    <version>$version$</version>
+    <title>OpenCV nuget package</title>
+    <authors>Wu, Ganhao&lt;wuganhao@hotmail.com&gt;</authors>
+    <owners>Wu, Ganhao&lt;wuganhao@hotmail.com&gt;</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>OpenCV</description>
+    <releaseNotes>Create OpenCV dynamic library for VS 2019</releaseNotes>
+    <tags>opencv</tags>
+  </metadata>
+  <files>
+    <file src="build\lib\Release\*.lib" target="lib\native\x64\" />
+    <file src="build\bin\Release\*.dll" target="lib\native\x64\" />
+  </files>
+</package>

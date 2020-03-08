@@ -6,9 +6,13 @@ trigger:
 - master
 
 pool:
-  vmImage: 'windows-latest'
+  name: 'Binocus'
 
 steps:
+- task: NuGetToolInstaller@1
+  inputs:
+    checkLatest: true
+
 - task: CMake@1
   inputs:
     workingDirectory: '.'
@@ -21,9 +25,14 @@ steps:
     msbuildArchitecture: 'x64'
     configuration: 'Release'
 
-
 - task: MSBuild@1
   inputs:
     solution: 'build/OpenCV.sln'
     msbuildArchitecture: 'x64'
     configuration: 'Debug'
+
+- task: NuGetCommand@2
+  inputs:
+    command: 'pack'
+    packagesToPack: 'package\nuget\OpenCV.nuspec'
+    versioningScheme: 'off'

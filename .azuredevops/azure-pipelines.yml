@@ -10,7 +10,8 @@ trigger:
     - releases/*
 
 pool:
-  name: 'Binocus'
+  demands:
+    - self-hosted
 
 steps:
 - checkout: self

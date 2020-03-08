@@ -3,12 +3,21 @@
 # Add steps that publish test results, save build artifacts, deploy, and more:
 
 trigger:
-- master
+  batch: true
+  branches:
+    include:
+    - master
+    - releases/*
 
 pool:
   name: 'Binocus'
 
 steps:
+- checkout: self
+  clean: true
+  fetchDepth: 1
+  submodules: recursive
+
 - task: NuGetToolInstaller@1
   inputs:
     checkLatest: true

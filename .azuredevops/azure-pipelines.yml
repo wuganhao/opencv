@@ -12,7 +12,10 @@ trigger:
 pool:
   name: 'Binocus'
   demands:
+    - self-hosted
     - msbuild
+    - Agent.OS -equals Windows_NT
+    - Agent.OSArchitecture -equals X64
 
 steps:
 - checkout: self

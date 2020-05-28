@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+  <metadata>
+    <id>wuganhao.OpenCV</id>
+    <version>$version$</version>
+    <title>OpenCV nuget package</title>
+    <authors>Wu, Ganhao&lt;wuganhao@hotmail.com&gt;</authors>
+    <owners>Wu, Ganhao&lt;wuganhao@hotmail.com&gt;</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>OpenCV</description>
+    <releaseNotes>Create OpenCV dynamic library for VS 2019</releaseNotes>
+    <tags>opencv</tags>
+  </metadata>
+  <files>
+    <file src="..\..\build\lib\Release\*.lib"         target="lib\native\x64\" />
+    <file src="..\..\build\bin\Release\*.dll"         target="lib\native\x64\" />
+    <file src="..\..\include\**\*.h"                  target="include\" />
+    <file src="..\..\include\**\*.hpp"                target="include\" />
+    <file src="wuganhao.OpenCV.targets"               target="build\" />
+    <file src="..\..\modules\calib3d\include\**\*"    target="include\" />
+    <file src="..\..\modules\core\include\**\*"       target="include\" />
+    <file src="..\..\modules\dnn\include\**\*"        target="include\" />
+    <file src="..\..\modules\features2d\include\**\*" target="include\" />
+    <file src="..\..\modules\flann\include\**\*"      target="include\" />
+    <file src="..\..\modules\highgui\include\**\*"    target="include\" />
+    <file src="..\..\modules\imgcodecs\include\**\*"  target="include\" />
+    <file src="..\..\modules\imgproc\include\**\*"    target="include\" />
+    <file src="..\..\modules\ml\include\**\*"         target="include\" />
+    <file src="..\..\modules\objdetect\include\**\*"  target="include\" />
+    <file src="..\..\modules\photo\include\**\*"      target="include\" />
+    <file src="..\..\modules\shape\include\**\*"      target="include\" />
+    <file src="..\..\modules\stitching\include\**\*"  target="include\" />
+    <file src="..\..\modules\superres\include\**\*"   target="include\" />
+    <file src="..\..\modules\video\include\**\*"      target="include\" />
+    <file src="..\..\modules\videoio\include\**\*"    target="include\" />
+    <file src="..\..\modules\videostab\include\**\*"  target="include\" />
+    <file src="..\..\modules\world\include\**\*"      target="include\" />
+    <file src="..\..\build\opencv2\**\*"              target="include\opencv2\" />
+  </files>
+</package>

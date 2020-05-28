@@ -1,0 +1,28 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(MSBuildThisFileDirectory)..\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup>
+    <Link>
+      <AdditionalDependencies>opencv_world349.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Platform)'=='x64'">
+    <Link>
+      <AdditionalLibraryDirectories>$(MSBuildThisFileDirectory)..\lib\native\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+   </ItemDefinitionGroup>
+  <PropertyGroup Label="Globals">
+    <BuildDependsOn>$(BuildDependsOn);DeployOpenCVArtifacts</BuildDependsOn>
+  </PropertyGroup>
+  <ItemGroup>
+    <OpenCVArtifacts Include="$(MSBuildThisFileDirectory)..\lib\native\x64\opencv_world349.dll" />
+  </ItemGroup>
+  <Target Name="DeployOpenCVArtifacts">
+    <Error Text="Package 'wuganhao.OpenCV' only support 64bit build" Condition="'$(Platform)'!='x64'" />
+    <Copy SourceFiles="@（OpenCVArtifacts）" DestinationFolder="$(SolutionDir)\bin\$(Configuration)" />
+  </Target>
+</Project>

@@ -12,7 +12,7 @@
     <tags>opencv</tags>
   </metadata>
   <files>
-    <file src="build\lib\Release\*.lib" target="lib\native\x64\" />
-    <file src="build\bin\Release\*.dll" target="lib\native\x64\" />
+    <file src="..\..\build\lib\Release\*.lib" target="lib\native\x64\" />
+    <file src="..\..\build\bin\Release\*.dll" target="lib\native\x64\" />
   </files>
 </package>

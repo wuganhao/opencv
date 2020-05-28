@@ -32,10 +32,6 @@ jobs:
       working-directory: ./build
       run: msbuild /m /p:Configuration=Release OpenCV.sln
 
-    - name: Build Debug
-      working-directory: ./build
-      run: msbuild /m /p:Configuration=Debug OpenCV.sln
-
     - name: Nuget Pack for non-tags
       working-directory: .
       if: "!startsWith(github.ref, 'refs/tags/')"

@@ -10,7 +10,7 @@ trigger:
     - releases/*
 
 pool:
-  name: 'Binocus'
+  name: Binocus
   demands:
     - msbuild
     - Agent.OS -equals Windows_NT

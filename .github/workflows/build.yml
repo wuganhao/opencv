@@ -26,7 +26,7 @@ jobs:
 
     - name: CMake
       working-directory: .
-      run: cmake -S . -B ./build -G "Visual Studio 16 2019"
+      run: cmake -DBUILD_opencv_world=ON -S . -B ./build -G "Visual Studio 16 2019"
 
     - name: Build Release
       working-directory: ./build

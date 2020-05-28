@@ -23,3 +23,5 @@ bin/
 build
 node_modules
 /dist/
+/CMakeFiles/
+/CMakeCache.txt

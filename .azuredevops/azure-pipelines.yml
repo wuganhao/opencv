@@ -12,7 +12,7 @@ trigger:
 pool:
 #  name: 'Binocus'
   demands:
-    - self-hosted
+    - msbuild
 
 steps:
 - checkout: self

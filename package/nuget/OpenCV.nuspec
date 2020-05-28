@@ -16,6 +16,7 @@
     <file src="..\..\build\bin\Release\*.dll"         target="lib\native\x64\" />
     <file src="..\..\include\**\*.h"                  target="include\" />
     <file src="..\..\include\**\*.hpp"                target="include\" />
+    <file src="wuganhao.OpenCV.targets"               target="build\" />
     <file src="..\..\modules\calib3d\include\**\*"    target="include\" />
     <file src="..\..\modules\core\include\**\*"       target="include\" />
     <file src="..\..\modules\dnn\include\**\*"        target="include\" />
@@ -33,5 +34,7 @@
     <file src="..\..\modules\video\include\**\*"      target="include\" />
     <file src="..\..\modules\videoio\include\**\*"    target="include\" />
     <file src="..\..\modules\videostab\include\**\*"  target="include\" />
+    <file src="..\..\modules\world\include\**\*"      target="include\" />
+    <file src="..\..\build\opencv2\**\*"              target="include\opencv2\" />
   </files>
 </package>

@@ -23,10 +23,16 @@ jobs:
       #with:
       #  arch: amd64
       #  toolset: 16.0
+      
+    - name: Checkout opencv_contrib
+      working-directory: ..
+      run: |
+        git clone ssh://git@github.com/opencv/opencv_contrib.git
+        git checkout 3.4
 
     - name: CMake
       working-directory: .
-      run: cmake -DBUILD_opencv_world=ON -S . -B ./build -G "Visual Studio 16 2019"
+      run: cmake -DBUILD_opencv_world=ON -DOPENCV_EXTRA_MODULES_PATH=../opencv_contrib/modules -S . -B ./build -G "Visual Studio 16 2019"
 
     - name: Build Release
       working-directory: ./build

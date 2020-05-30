@@ -27,7 +27,7 @@ jobs:
     - name: Checkout opencv_contrib
       working-directory: ..
       run: |
-        git clone ssh://git@github.com/opencv/opencv_contrib.git
+        git clone https://github.com/opencv/opencv_contrib.git
         git checkout 3.4
 
     - name: CMake

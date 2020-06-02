@@ -14,6 +14,8 @@
   <files>
     <file src="..\..\build\lib\Release\*.lib"         target="lib\native\x64\" />
     <file src="..\..\build\bin\Release\*.dll"         target="lib\native\x64\" />
+    <file src="..\..\build\lib\Debug\*.lib"           target="lib\native\x64\" />
+    <file src="..\..\build\bin\Debug\*.dll"           target="lib\native\x64\" />
     <file src="..\..\include\**\*.h"                  target="include\" />
     <file src="..\..\include\**\*.hpp"                target="include\" />
     <file src="wuganhao.OpenCV.targets"               target="build\" />

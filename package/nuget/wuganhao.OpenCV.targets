@@ -10,7 +10,7 @@
       <AdditionalDependencies>opencv_world349.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Link Condition="'$(Configuration)'=='Debug'">
-      <AdditionalDependencies>opencv_world349.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opencv_world349d.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Platform)|$(Configuration)'=='x64|Release'">

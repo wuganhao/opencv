@@ -27,11 +27,11 @@
     <BuildDependsOn>$(BuildDependsOn);DeployOpenCVArtifacts</BuildDependsOn>
   </PropertyGroup>
   <ItemGroup>
-    <OpenCVArtifacts Condition="'$(Configuration)'=='Release'" Include="$(MSBuildThisFileDirectory)..\lib\native\x64\release\opencv_world349.dll" />
-    <OpenCVArtifacts Condition="'$(Configuration)'=='Debug'"   Include="$(MSBuildThisFileDirectory)..\lib\native\x64\debug\opencv_world349d.dll" />
+    <OpenCVArtifacts Condition="'$(Configuration)'=='Release'" Include="$(MSBuildThisFileDirectory)..\lib\native\x64\release\*.dll" />
+    <OpenCVArtifacts Condition="'$(Configuration)'=='Debug'"   Include="$(MSBuildThisFileDirectory)..\lib\native\x64\debug\*.dll" />
   </ItemGroup>
   <Target Name="DeployOpenCVArtifacts">
     <Error Text="Package 'wuganhao.OpenCV' only support 64bit build" Condition="'$(Platform)'!='x64'" />
-    <Copy SourceFiles="@（OpenCVArtifacts）" DestinationFolder="$(SolutionDir)\bin\$(Configuration)" />
+    <Copy SourceFiles="@(OpenCVArtifacts)" DestinationFolder="$(SolutionDir)\bin\$(Configuration)" />
   </Target>
 </Project>

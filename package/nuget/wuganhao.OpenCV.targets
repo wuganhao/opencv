@@ -13,17 +13,22 @@
       <AdditionalDependencies>opencv_world349.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Platform)'=='x64'">
+  <ItemDefinitionGroup Condition="'$(Platform)|$(Configuration)'=='x64|Release'">
     <Link>
-      <AdditionalLibraryDirectories>$(MSBuildThisFileDirectory)..\lib\native\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(MSBuildThisFileDirectory)..\lib\native\x64\release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+   </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Platform)|$(Configuration)'=='x64|Debug'">
+    <Link>
+      <AdditionalLibraryDirectories>$(MSBuildThisFileDirectory)..\lib\native\x64\debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
    </ItemDefinitionGroup>
   <PropertyGroup Label="Globals">
     <BuildDependsOn>$(BuildDependsOn);DeployOpenCVArtifacts</BuildDependsOn>
   </PropertyGroup>
   <ItemGroup>
-    <OpenCVArtifacts Condition="'$(Configuration)'=='Release'" Include="$(MSBuildThisFileDirectory)..\lib\native\x64\opencv_world349.dll" />
-    <OpenCVArtifacts Condition="'$(Configuration)'=='Debug'"   Include="$(MSBuildThisFileDirectory)..\lib\native\x64\opencv_world349d.dll" />
+    <OpenCVArtifacts Condition="'$(Configuration)'=='Release'" Include="$(MSBuildThisFileDirectory)..\lib\native\x64\release\opencv_world349.dll" />
+    <OpenCVArtifacts Condition="'$(Configuration)'=='Debug'"   Include="$(MSBuildThisFileDirectory)..\lib\native\x64\debug\opencv_world349d.dll" />
   </ItemGroup>
   <Target Name="DeployOpenCVArtifacts">
     <Error Text="Package 'wuganhao.OpenCV' only support 64bit build" Condition="'$(Platform)'!='x64'" />

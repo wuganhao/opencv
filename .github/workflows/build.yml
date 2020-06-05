@@ -30,7 +30,7 @@ jobs:
 
     - name: CMake
       working-directory: .
-      run: cmake -DBUILD_opencv_world=ON -DOPENCV_EXTRA_MODULES_PATH=../opencv_contrib/modules -S . -B ./build -G "Visual Studio 16 2019"
+      run: cmake -DOPENCV_EXTRA_MODULES_PATH=../opencv_contrib/modules -S . -B ./build -G "Visual Studio 16 2019"
 
     - name: Build Release
       working-directory: ./build
@@ -44,6 +44,13 @@ jobs:
       working-directory: .
       if: "!startsWith(github.ref, 'refs/tags/')"
       run: nuget pack package\nuget\OpenCV.nuspec -version 1.0.0-dev -OutputFileNamesWithoutVersion -OutputDirectory dist
+
+    - name: Upload artifact
+      if: "!startsWith(github.ref, 'refs/tags/')"
+      uses: actions/upload-artifact@v2
+      with:
+        name: nuget
+        path: dist/*.nupkg
       
     - name: Extract tag name
       if: startsWith(github.ref, 'refs/tags/')

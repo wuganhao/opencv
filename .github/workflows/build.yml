@@ -35,7 +35,13 @@ jobs:
     - name: Build Release
       working-directory: ./build
       run: msbuild /m /p:Configuration=Release OpenCV.sln
-      
+
+    - name: upload artifact for non-release
+      uses: actions/upload-artifact@v2
+      with:
+        name: build-release
+        path: build/(bin|lib|opencv2)/**/*
+
   build-debug:
     runs-on: windows-latest
     timeout-minutes: 360
@@ -67,6 +73,40 @@ jobs:
     - name: Build Debug
       working-directory: ./build
       run: msbuild /m /p:Configuration=Debug OpenCV.sln
+
+    - name: upload artifact for non-debug
+      uses: actions/upload-artifact@v2
+      with:
+        name: build-debug
+        path: build/(bin|lib|opencv2)/**/*
+
+  package:
+    runs-on: windows-latest
+    timeout-minutes: 360
+    needs: build-debug, build-release
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        clean: true
+        fetch-depth: 1
+
+    - name: Download release output
+      uses: actions/download-artifact@v2
+      with:
+        name: build-release
+        path: build
+
+    - name: Download debug output
+      uses: actions/download-artifact@v2
+      with:
+        name: build-debug
+        path: build
+
+    - name: Display structure of downloaded files
+      run: dir
+      working-directory: build
 
     # - name: nuget pack for non-tags
       # working-directory: .

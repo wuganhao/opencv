@@ -39,19 +39,19 @@ jobs:
     - name: upload artifact for non-release-bin
       uses: actions/upload-artifact@v2
       with:
-        name: build-release
+        name: build-release-bin
         path: build/bin/**/*
 
     - name: upload artifact for non-release-lib
       uses: actions/upload-artifact@v2
       with:
-        name: build-release
+        name: build-release-lib
         path: build/lib/**/*
 
     - name: upload artifact for non-release-opencv2
       uses: actions/upload-artifact@v2
       with:
-        name: build-release
+        name: build-release-opencv2
         path: build/opencv2/**/*
 
   build-debug:

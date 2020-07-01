@@ -36,19 +36,19 @@ jobs:
       working-directory: ./build
       run: msbuild /m /p:Configuration=Release OpenCV.sln
 
-    - name: upload artifact for non-release-bin
+    - name: upload artifact for release-bin
       uses: actions/upload-artifact@v2
       with:
         name: build-release-bin
         path: build/bin/**/*
 
-    - name: upload artifact for non-release-lib
+    - name: upload artifact for release-lib
       uses: actions/upload-artifact@v2
       with:
         name: build-release-lib
         path: build/lib/**/*
 
-    - name: upload artifact for non-release-opencv2
+    - name: upload artifact for release-opencv2
       uses: actions/upload-artifact@v2
       with:
         name: build-release-opencv2
@@ -86,11 +86,23 @@ jobs:
       working-directory: ./build
       run: msbuild /m /p:Configuration=Debug OpenCV.sln
 
-    - name: upload artifact for non-debug
+    - name: upload artifact for debug-bin
       uses: actions/upload-artifact@v2
       with:
-        name: build-debug
-        path: build/(bin|lib|opencv2)/**/*
+        name: build-debug-bin
+        path: build/bin/**/*
+
+    - name: upload artifact for debug-lib
+      uses: actions/upload-artifact@v2
+      with:
+        name: build-debug-lib
+        path: build/lib/**/*
+
+    - name: upload artifact for debug-opencv2
+      uses: actions/upload-artifact@v2
+      with:
+        name: build-debug-opencv2
+        path: build/opencv2/**/*
 
   package:
     runs-on: windows-latest

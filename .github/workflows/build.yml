@@ -36,11 +36,23 @@ jobs:
       working-directory: ./build
       run: msbuild /m /p:Configuration=Release OpenCV.sln
 
-    - name: upload artifact for non-release
+    - name: upload artifact for non-release-bin
       uses: actions/upload-artifact@v2
       with:
         name: build-release
-        path: [build/bin/**/*, build/lib/**/*, build/opencv2/**/*]
+        path: build/bin/**/*
+
+    - name: upload artifact for non-release-lib
+      uses: actions/upload-artifact@v2
+      with:
+        name: build-release
+        path: build/lib/**/*
+
+    - name: upload artifact for non-release-opencv2
+      uses: actions/upload-artifact@v2
+      with:
+        name: build-release
+        path: build/opencv2/**/*
 
   build-debug:
     runs-on: windows-latest

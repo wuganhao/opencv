@@ -40,7 +40,7 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: build-release
-        path: build/(bin|lib|opencv2)/**/*
+        path: [build/bin/**/*, build/lib/**/*, build/opencv2/**/*]
 
   build-debug:
     runs-on: windows-latest

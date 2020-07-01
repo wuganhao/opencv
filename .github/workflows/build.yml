@@ -4,7 +4,7 @@ on:
   push:
 
 jobs:
-  build:
+  build-release:
     runs-on: windows-latest
     timeout-minutes: 360
 
@@ -36,40 +36,68 @@ jobs:
       working-directory: ./build
       run: msbuild /m /p:Configuration=Release OpenCV.sln
       
+  build-debug:
+    runs-on: windows-latest
+    timeout-minutes: 360
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        clean: true
+        fetch-depth: 1
+
+    - name: Setup NuGet
+      uses: warrenbuckley/Setup-Nuget@v1
+
+    - name: Setup MSVC
+      uses: ilammy/msvc-dev-cmd@v1
+      #with:
+      #  arch: amd64
+      #  toolset: 16.0
+      
+    - name: Checkout opencv_contrib
+      working-directory: ..
+      run: git clone --branch 3.4 --depth=1 https://github.com/opencv/opencv_contrib.git opencv_contrib
+
+    - name: CMake
+      working-directory: .
+      run: cmake -DOPENCV_EXTRA_MODULES_PATH=../opencv_contrib/modules -S . -B ./build -G "Visual Studio 16 2019"
+
     - name: Build Debug
       working-directory: ./build
       run: msbuild /m /p:Configuration=Debug OpenCV.sln
 
-    - name: Nuget Pack for non-tags
-      working-directory: .
-      if: "!startsWith(github.ref, 'refs/tags/')"
-      run: nuget pack package\nuget\OpenCV.nuspec -version 1.0.0-dev -OutputFileNamesWithoutVersion -OutputDirectory dist
+    # - name: nuget pack for non-tags
+      # working-directory: .
+      # if: "!startswith(github.ref, 'refs/tags/')"
+      # run: nuget pack package\nuget\opencv.nuspec -version 1.0.0-dev -outputfilenameswithoutversion -outputdirectory dist
 
-    - name: Upload artifact for release
-      if: "startsWith(github.ref, 'refs/tags/')"
-      uses: actions/upload-artifact@v2
-      with:
-        name: nuget
-        path: dist/*.nupkg
+    # - name: upload artifact for release
+      # if: "startswith(github.ref, 'refs/tags/')"
+      # uses: actions/upload-artifact@v2
+      # with:
+        # name: nuget
+        # path: dist/*.nupkg
         
-    - name: Upload artifact for non-release
-      if: "!startsWith(github.ref, 'refs/tags/')"
-      uses: actions/upload-artifact@v2
-      with:
-        name: nuget
-        path: build/**/*
+    # - name: upload artifact for non-release
+      # if: "!startswith(github.ref, 'refs/tags/')"
+      # uses: actions/upload-artifact@v2
+      # with:
+        # name: nuget
+        # path: build/**/*
       
-    - name: Extract tag name
-      if: startsWith(github.ref, 'refs/tags/')
-      uses: olegtarasov/get-tag@v2
-      id: tagName
-      with:
-        tagRegex: "([0-9\\.]+.*)"  # Optional. Returns specified group text as tag name. Full tag string is returned if regex is not defined.
-        tagRegexGroup: 1 # Optional. Default is 1.
+    # - name: extract tag name
+      # if: startswith(github.ref, 'refs/tags/')
+      # uses: olegtarasov/get-tag@v2
+      # id: tagname
+      # with:
+        # tagregex: "([0-9\\.]+.*)"  # optional. returns specified group text as tag name. full tag string is returned if regex is not defined.
+        # tagregexgroup: 1 # optional. default is 1.
 
-    - name: Nuget Pack/Push for tags
-      if: startsWith(github.ref, 'refs/tags/')
-      working-directory: .
-      run: |
-        nuget pack package\nuget\OpenCV.nuspec -version ${{env.GIT_TAG_NAME}} -OutputFileNamesWithoutVersion -OutputDirectory dist
-        nuget push dist\wuganhao.OpenCV.nupkg -ApiKey ${{secrets.nuget_api_key}} -Source https://api.nuget.org/v3/index.json
+    # - name: nuget pack/push for tags
+      # if: startswith(github.ref, 'refs/tags/')
+      # working-directory: .
+      # run: |
+        # nuget pack package\nuget\opencv.nuspec -version ${{env.git_tag_name}} -outputfilenameswithoutversion -outputdirectory dist
+        # nuget push dist\wuganhao.opencv.nupkg -apikey ${{secrets.nuget_api_key}} -source https://api.nuget.org/v3/index.json

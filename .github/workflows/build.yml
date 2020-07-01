@@ -83,7 +83,7 @@ jobs:
   package:
     runs-on: windows-latest
     timeout-minutes: 360
-    needs: build-debug, build-release
+    needs: [build-debug, build-release]
 
     steps:
     - name: Checkout

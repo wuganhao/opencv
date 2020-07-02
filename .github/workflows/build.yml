@@ -120,37 +120,37 @@ jobs:
       uses: actions/download-artifact@v2
       with:
         name: build-release-bin
-        path: build
+        path: build/bin
 
     - name: Download release output - lib
       uses: actions/download-artifact@v2
       with:
         name: build-release-lib
-        path: build
+        path: build/lib
 
     - name: Download release output - opencv2
       uses: actions/download-artifact@v2
       with:
         name: build-release-opencv2
-        path: build
+        path: build/opencv2
 
     - name: Download debug output - bin
       uses: actions/download-artifact@v2
       with:
         name: build-debug-bin
-        path: build
+        path: build/bin
 
     - name: Download debug output - lib
       uses: actions/download-artifact@v2
       with:
         name: build-debug-lib
-        path: build
+        path: build/lib
 
     - name: Download debug output - opencv2
       uses: actions/download-artifact@v2
       with:
         name: build-debug-opencv2
-        path: build
+        path: build/opencv2
 
     - name: Display structure of downloaded files
       run: dir

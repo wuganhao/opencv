@@ -116,6 +116,10 @@ jobs:
         clean: true
         fetch-depth: 1
 
+    - name: Checkout opencv_contrib
+      working-directory: ..
+      run: git clone --branch 3.4 --depth=1 https://github.com/opencv/opencv_contrib.git opencv_contrib
+
     - name: Download release output - bin
       uses: actions/download-artifact@v2
       with:

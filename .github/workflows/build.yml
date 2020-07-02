@@ -165,20 +165,12 @@ jobs:
       if: "!startswith(github.ref, 'refs/tags/')"
       run: nuget pack package\nuget\opencv.nuspec -version 1.0.0-dev -outputfilenameswithoutversion -outputdirectory dist
 
-    - name: upload artifact for release
-      if: "startswith(github.ref, 'refs/tags/')"
+    - name: upload package artifact
       uses: actions/upload-artifact@v2
       with:
         name: nuget
         path: dist/*.nupkg
-        
-    - name: upload artifact for non-release
-      if: "!startswith(github.ref, 'refs/tags/')"
-      uses: actions/upload-artifact@v2
-      with:
-        name: nuget
-        path: build/**/*
-      
+
     - name: extract tag name
       if: startswith(github.ref, 'refs/tags/')
       uses: olegtarasov/get-tag@v2

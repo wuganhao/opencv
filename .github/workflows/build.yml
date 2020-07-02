@@ -116,52 +116,76 @@ jobs:
         clean: true
         fetch-depth: 1
 
-    - name: Download release output
+    - name: Download release output - bin
       uses: actions/download-artifact@v2
       with:
         name: build-release-bin
         path: build
 
-    - name: Download debug output
+    - name: Download release output - lib
       uses: actions/download-artifact@v2
       with:
-        name: build-debug
+        name: build-release-lib
+        path: build
+
+    - name: Download release output - opencv2
+      uses: actions/download-artifact@v2
+      with:
+        name: build-release-opencv2
+        path: build
+
+    - name: Download debug output - bin
+      uses: actions/download-artifact@v2
+      with:
+        name: build-debug-bin
+        path: build
+
+    - name: Download debug output - lib
+      uses: actions/download-artifact@v2
+      with:
+        name: build-debug-lib
+        path: build
+
+    - name: Download debug output - opencv2
+      uses: actions/download-artifact@v2
+      with:
+        name: build-debug-opencv2
         path: build
 
     - name: Display structure of downloaded files
       run: dir
       working-directory: build
 
-    # - name: nuget pack for non-tags
-      # working-directory: .
-      # if: "!startswith(github.ref, 'refs/tags/')"
-      # run: nuget pack package\nuget\opencv.nuspec -version 1.0.0-dev -outputfilenameswithoutversion -outputdirectory dist
+    - name: nuget pack for non-tags
+      working-directory: .
+      if: "!startswith(github.ref, 'refs/tags/')"
+      run: nuget pack package\nuget\opencv.nuspec -version 1.0.0-dev -outputfilenameswithoutversion -outputdirectory dist
 
-    # - name: upload artifact for release
-      # if: "startswith(github.ref, 'refs/tags/')"
-      # uses: actions/upload-artifact@v2
-      # with:
-        # name: nuget
-        # path: dist/*.nupkg
+    - name: upload artifact for release
+      if: "startswith(github.ref, 'refs/tags/')"
+      uses: actions/upload-artifact@v2
+      with:
+        name: nuget
+        path: dist/*.nupkg
         
-    # - name: upload artifact for non-release
-      # if: "!startswith(github.ref, 'refs/tags/')"
-      # uses: actions/upload-artifact@v2
-      # with:
-        # name: nuget
-        # path: build/**/*
+    - name: upload artifact for non-release
+      if: "!startswith(github.ref, 'refs/tags/')"
+      uses: actions/upload-artifact@v2
+      with:
+        name: nuget
+        path: build/**/*
       
-    # - name: extract tag name
-      # if: startswith(github.ref, 'refs/tags/')
-      # uses: olegtarasov/get-tag@v2
-      # id: tagname
-      # with:
-        # tagregex: "([0-9\\.]+.*)"  # optional. returns specified group text as tag name. full tag string is returned if regex is not defined.
-        # tagregexgroup: 1 # optional. default is 1.
+    - name: extract tag name
+      if: startswith(github.ref, 'refs/tags/')
+      uses: olegtarasov/get-tag@v2
+      id: tagname
+      with:
+        tagregex: "([0-9\\.]+.*)"  # optional. returns specified group text as tag name. full tag string is returned if regex is not defined.
+        tagregexgroup: 1 # optional. default is 1.
 
-    # - name: nuget pack/push for tags
-      # if: startswith(github.ref, 'refs/tags/')
-      # working-directory: .
-      # run: |
-        # nuget pack package\nuget\opencv.nuspec -version ${{env.git_tag_name}} -outputfilenameswithoutversion -outputdirectory dist
-        # nuget push dist\wuganhao.opencv.nupkg -apikey ${{secrets.nuget_api_key}} -source https://api.nuget.org/v3/index.json
+    - name: nuget pack/push for tags
+      if: startswith(github.ref, 'refs/tags/')
+      working-directory: .
+      run: |
+        nuget pack package\nuget\opencv.nuspec -version ${{env.git_tag_name}} -outputfilenameswithoutversion -outputdirectory dist
+        nuget push dist\wuganhao.opencv.nupkg -apikey ${{secrets.nuget_api_key}} -source https://api.nuget.org/v3/index.json

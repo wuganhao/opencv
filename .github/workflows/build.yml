@@ -90,7 +90,6 @@ jobs:
       #  toolset: 16.0
       
     - name: CMake
-      working-directory: ./opencv
       run: cmake -DOPENCV_EXTRA_MODULES_PATH=opencv_contrib/modules -S opencv -B build -G "Visual Studio 16 2019"
 
     - name: Build Debug

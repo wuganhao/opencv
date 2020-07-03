@@ -9,11 +9,20 @@ jobs:
     timeout-minutes: 360
 
     steps:
-    - name: Checkout
+    - name: Checkout OpenCV
       uses: actions/checkout@v2
       with:
         clean: true
         fetch-depth: 1
+        path: opencv
+
+    - name: Checkout OpenCV_Contrib
+      uses: actions/checkout@v2
+      with:
+        repository: https://github.com/opencv/opencv_contrib.git
+        clean: true
+        fetch-depth: 1
+        path: opencv_contrib
 
     - name: Setup NuGet
       uses: warrenbuckley/Setup-Nuget@v1
@@ -24,13 +33,9 @@ jobs:
       #  arch: amd64
       #  toolset: 16.0
       
-    - name: Checkout opencv_contrib
-      working-directory: ..
-      run: git clone --branch 3.4 --depth=1 https://github.com/opencv/opencv_contrib.git opencv_contrib
-
     - name: CMake
       working-directory: .
-      run: cmake -DOPENCV_EXTRA_MODULES_PATH=../opencv_contrib/modules -S . -B ./build -G "Visual Studio 16 2019"
+      run: cmake -DOPENCV_EXTRA_MODULES_PATH=./opencv_contrib/modules ./opencv -B ./build -G "Visual Studio 16 2019"
 
     - name: Build Release
       working-directory: ./build
@@ -59,11 +64,20 @@ jobs:
     timeout-minutes: 360
 
     steps:
-    - name: Checkout
+    - name: Checkout OpenCV
       uses: actions/checkout@v2
       with:
         clean: true
         fetch-depth: 1
+        path: opencv
+
+    - name: Checkout OpenCV_Contrib
+      uses: actions/checkout@v2
+      with:
+        repository: https://github.com/opencv/opencv_contrib.git
+        clean: true
+        fetch-depth: 1
+        path: opencv_contrib
 
     - name: Setup NuGet
       uses: warrenbuckley/Setup-Nuget@v1
@@ -74,13 +88,9 @@ jobs:
       #  arch: amd64
       #  toolset: 16.0
       
-    - name: Checkout opencv_contrib
-      working-directory: ..
-      run: git clone --branch 3.4 --depth=1 https://github.com/opencv/opencv_contrib.git opencv_contrib
-
     - name: CMake
       working-directory: .
-      run: cmake -DOPENCV_EXTRA_MODULES_PATH=../opencv_contrib/modules -S . -B ./build -G "Visual Studio 16 2019"
+      run: cmake -DOPENCV_EXTRA_MODULES_PATH=./opencv_contrib/modules ./opencv -B ./build -G "Visual Studio 16 2019"
 
     - name: Build Debug
       working-directory: ./build
@@ -110,15 +120,20 @@ jobs:
     needs: [build-debug, build-release]
 
     steps:
-    - name: Checkout
+    - name: Checkout OpenCV
       uses: actions/checkout@v2
       with:
         clean: true
         fetch-depth: 1
+        path: opencv
 
-    - name: Checkout opencv_contrib
-      working-directory: ..
-      run: git clone --branch 3.4 --depth=1 https://github.com/opencv/opencv_contrib.git opencv_contrib
+    - name: Checkout OpenCV_Contrib
+      uses: actions/checkout@v2
+      with:
+        repository: https://github.com/opencv/opencv_contrib.git
+        clean: true
+        fetch-depth: 1
+        path: opencv_contrib
 
     - name: Download release output - bin
       uses: actions/download-artifact@v2

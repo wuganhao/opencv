@@ -56,6 +56,10 @@ if(POLICY CMP0056)
   cmake_policy(SET CMP0056 NEW)  # try_compile(): link flags
 endif()
 
+if(POLICY CMP0066)
+  cmake_policy(SET CMP0066 NEW)  # CMake 3.7: try_compile(): use per-config flags, like CMAKE_CXX_FLAGS_RELEASE
+endif()
+
 if(POLICY CMP0067)
   cmake_policy(SET CMP0067 NEW)  # CMake 3.8: try_compile(): honor language standard variables (like C++11)
 endif()
@@ -432,6 +436,9 @@ OCV_OPTION(WITH_IMGCODEC_PXM "Include PNM (PBM,PGM,PPM) and PAM formats support"
 OCV_OPTION(WITH_QUIRC "Include library QR-code decoding" ON
   VISIBLE_IF TRUE
   VERIFY HAVE_QUIRC)
+OCV_OPTION(WITH_TENGINE "Include Arm Inference Tengine support" OFF
+  VISIBLE_IF (ARM OR AARCH64) AND (UNIX OR ANDROID) AND NOT IOS
+  VERIFY HAVE_TENGINE)
 
 # OpenCV build components
 # ===================================================
@@ -687,6 +694,9 @@ include(cmake/OpenCVFindLibsVideo.cmake)
 include(cmake/OpenCVFindLibsPerf.cmake)
 include(cmake/OpenCVFindLAPACK.cmake)
 include(cmake/OpenCVFindProtobuf.cmake)
+if(WITH_TENGINE)
+  include(cmake/OpenCVFindTengine.cmake)
+endif()
 
 # ----------------------------------------------------------------------------
 #  Detect other 3rd-party libraries/tools
@@ -961,11 +971,11 @@ endif()
 # for UNIX it does not make sense as LICENSE and readme will be part of the package automatically
 if(ANDROID OR NOT UNIX)
   install(FILES ${OPENCV_LICENSE_FILE}
-        PERMISSIONS OWNER_READ GROUP_READ WORLD_READ
+        PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ
         DESTINATION ./ COMPONENT libs)
   if(OPENCV_README_FILE)
     install(FILES ${OPENCV_README_FILE}
-            PERMISSIONS OWNER_READ GROUP_READ WORLD_READ
+            PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ
             DESTINATION ./ COMPONENT libs)
   endif()
 endif()
@@ -1470,6 +1480,10 @@ endif()
 
 if(WITH_VA_INTEL OR HAVE_VA_INTEL)
   status("    Intel VA-API/OpenCL:"  HAVE_VA_INTEL       THEN "YES (OpenCL: ${VA_INTEL_IOCL_ROOT})" ELSE NO)
+endif()
+
+if(WITH_TENGINE OR HAVE_TENGINE)
+  status("    Tengine:"      HAVE_TENGINE     THEN "YES (${TENGINE_LIBRARIES})" ELSE NO)
 endif()
 
 if(WITH_LAPACK OR HAVE_LAPACK)

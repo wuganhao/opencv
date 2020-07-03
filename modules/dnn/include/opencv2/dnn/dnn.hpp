@@ -47,9 +47,9 @@
 #include "opencv2/core/async.hpp"
 
 #if !defined CV_DOXYGEN && !defined CV_STATIC_ANALYSIS && !defined CV_DNN_DONT_ADD_EXPERIMENTAL_NS
-#define CV__DNN_EXPERIMENTAL_NS_BEGIN namespace experimental_dnn_34_v16 {
+#define CV__DNN_EXPERIMENTAL_NS_BEGIN namespace experimental_dnn_34_v17 {
 #define CV__DNN_EXPERIMENTAL_NS_END }
-namespace cv { namespace dnn { namespace experimental_dnn_34_v16 { } using namespace experimental_dnn_34_v16; }}
+namespace cv { namespace dnn { namespace experimental_dnn_34_v17 { } using namespace experimental_dnn_34_v17; }}
 #else
 #define CV__DNN_EXPERIMENTAL_NS_BEGIN
 #define CV__DNN_EXPERIMENTAL_NS_END
@@ -1038,7 +1038,7 @@ CV__DNN_EXPERIMENTAL_NS_BEGIN
      * @param eta a coefficient in adaptive threshold formula: \f$nms\_threshold_{i+1}=eta\cdot nms\_threshold_i\f$.
      * @param top_k if `>0`, keep at most @p top_k picked indices.
      */
-    CV_EXPORTS_W void NMSBoxes(const std::vector<Rect>& bboxes, const std::vector<float>& scores,
+    CV_EXPORTS void NMSBoxes(const std::vector<Rect>& bboxes, const std::vector<float>& scores,
                                const float score_threshold, const float nms_threshold,
                                CV_OUT std::vector<int>& indices,
                                const float eta = 1.f, const int top_k = 0);

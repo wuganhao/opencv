@@ -25,7 +25,7 @@ jobs:
         path: opencv_contrib
         ref: 3.4
 
-    - script: dir /b /s opencv_contrib
+    - run: ls -R opencv_contrib
 
     - name: Setup NuGet
       uses: warrenbuckley/Setup-Nuget@v1

@@ -19,10 +19,11 @@ jobs:
     - name: Checkout OpenCV_Contrib
       uses: actions/checkout@v2
       with:
-        repository: https://github.com/opencv/opencv_contrib.git
+        repository: opencv/opencv_contrib
         clean: true
         fetch-depth: 1
         path: opencv_contrib
+        ref: 3.4
 
     - name: Setup NuGet
       uses: warrenbuckley/Setup-Nuget@v1
@@ -74,10 +75,11 @@ jobs:
     - name: Checkout OpenCV_Contrib
       uses: actions/checkout@v2
       with:
-        repository: https://github.com/opencv/opencv_contrib.git
+        repository: opencv/opencv_contrib
         clean: true
         fetch-depth: 1
         path: opencv_contrib
+        ref: 3.4
 
     - name: Setup NuGet
       uses: warrenbuckley/Setup-Nuget@v1
@@ -130,10 +132,11 @@ jobs:
     - name: Checkout OpenCV_Contrib
       uses: actions/checkout@v2
       with:
-        repository: https://github.com/opencv/opencv_contrib.git
+        repository: opencv/opencv_contrib
         clean: true
         fetch-depth: 1
         path: opencv_contrib
+        ref: 3.4
 
     - name: Download release output - bin
       uses: actions/download-artifact@v2

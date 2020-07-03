@@ -23,7 +23,7 @@ jobs:
         clean: true
         fetch-depth: 1
         path: opencv_contrib
-        ref: 3.4
+        ref: 3.4.10
 
     - name: Setup NuGet
       uses: warrenbuckley/Setup-Nuget@v1
@@ -78,7 +78,7 @@ jobs:
         clean: true
         fetch-depth: 1
         path: opencv_contrib
-        ref: 3.4
+        ref: 3.4.10
 
     - name: Setup NuGet
       uses: warrenbuckley/Setup-Nuget@v1
@@ -135,7 +135,7 @@ jobs:
         clean: true
         fetch-depth: 1
         path: opencv_contrib
-        ref: 3.4
+        ref: 3.4.10
 
     - name: Download release output - bin
       uses: actions/download-artifact@v2

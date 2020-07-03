@@ -25,8 +25,6 @@ jobs:
         path: opencv_contrib
         ref: 3.4
 
-    - run: ls -R opencv_contrib/modules
-
     - name: Setup NuGet
       uses: warrenbuckley/Setup-Nuget@v1
 
@@ -93,7 +91,7 @@ jobs:
       
     - name: CMake
       working-directory: ./opencv
-      run: cmake -DOPENCV_EXTRA_MODULES_PATH=../opencv_contrib/modules . -B ../build -G "Visual Studio 16 2019"
+      run: cmake -DOPENCV_EXTRA_MODULES_PATH=opencv_contrib/modules -S opencv -B build -G "Visual Studio 16 2019"
 
     - name: Build Debug
       working-directory: ./build

@@ -140,37 +140,37 @@ jobs:
       uses: actions/download-artifact@v2
       with:
         name: build-release-bin
-        path: build/bin
+        path: opencv/build/bin
 
     - name: Download release output - lib
       uses: actions/download-artifact@v2
       with:
         name: build-release-lib
-        path: build/lib
+        path: opencv/build/lib
 
     - name: Download release output - opencv2
       uses: actions/download-artifact@v2
       with:
         name: build-release-opencv2
-        path: build/opencv2
+        path: opencv/build/opencv2
 
     - name: Download debug output - bin
       uses: actions/download-artifact@v2
       with:
         name: build-debug-bin
-        path: build/bin
+        path: opencv/build/bin
 
     - name: Download debug output - lib
       uses: actions/download-artifact@v2
       with:
         name: build-debug-lib
-        path: build/lib
+        path: opencv/build/lib
 
     - name: Download debug output - opencv2
       uses: actions/download-artifact@v2
       with:
         name: build-debug-opencv2
-        path: build/opencv2
+        path: opencv/build/opencv2
 
     - name: Display structure of downloaded files
       run: dir
@@ -181,7 +181,7 @@ jobs:
       working-directory: build
 
     - name: nuget pack for non-tags
-      working-directory: .
+      working-directory: opencv
       if: "!startswith(github.ref, 'refs/tags/')"
       run: nuget pack package\nuget\opencv.nuspec -version 1.0.0-dev -outputfilenameswithoutversion -outputdirectory dist
 
@@ -201,7 +201,7 @@ jobs:
 
     - name: nuget pack/push for tags
       if: startswith(github.ref, 'refs/tags/')
-      working-directory: .
+      working-directory: opencv
       run: |
         nuget pack package\nuget\opencv.nuspec -version ${{env.git_tag_name}} -outputfilenameswithoutversion -outputdirectory dist
         nuget push dist\wuganhao.opencv.nupkg -apikey ${{secrets.nuget_api_key}} -source https://api.nuget.org/v3/index.json

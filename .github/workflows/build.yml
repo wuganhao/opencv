@@ -177,8 +177,8 @@ jobs:
       working-directory: opencv/build
 
     - name: Display structure of package files
-      run: dir -R opencv/package
-      working-directory: opencv/build
+      run: dir -R package
+      working-directory: opencv
 
     - name: nuget pack for non-tags
       working-directory: opencv

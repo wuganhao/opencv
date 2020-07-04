@@ -4,16 +4,26 @@ on:
   push:
 
 jobs:
-  build:
+  build-release:
     runs-on: windows-latest
     timeout-minutes: 360
 
     steps:
-    - name: Checkout
+    - name: Checkout OpenCV
       uses: actions/checkout@v2
       with:
         clean: true
         fetch-depth: 1
+        path: opencv
+
+    - name: Checkout OpenCV_Contrib
+      uses: actions/checkout@v2
+      with:
+        repository: opencv/opencv_contrib
+        clean: true
+        fetch-depth: 1
+        path: opencv_contrib
+        ref: 3.4.10
 
     - name: Setup NuGet
       uses: warrenbuckley/Setup-Nuget@v1
@@ -24,38 +34,174 @@ jobs:
       #  arch: amd64
       #  toolset: 16.0
       
-    - name: Checkout opencv_contrib
-      working-directory: ..
-      run: git clone --branch 3.4 --depth=1 https://github.com/opencv/opencv_contrib.git opencv_contrib
-
     - name: CMake
-      working-directory: .
-      run: cmake -DBUILD_opencv_world=ON -DOPENCV_EXTRA_MODULES_PATH=../opencv_contrib/modules -S . -B ./build -G "Visual Studio 16 2019"
+      run: cmake -DBUILD_WITH_DEBUG_INFO=OFF -DBUILD_PACKAGE=OFF -DBUILD_JAVA=OFF -DBUILD_PERF_TESTS=OFF -DBUILD_DOCS=OFF -DBUILD_TESTS=OFF -DBUILD_EXAMPLES=OFF -DINSTALL_C_EXAMPLES=OFF -DINSTALL_TESTS=OFF -DOPENCV_EXTRA_MODULES_PATH=opencv_contrib/modules -S opencv -B build -G "Visual Studio 16 2019"
 
     - name: Build Release
       working-directory: ./build
       run: msbuild /m /p:Configuration=Release OpenCV.sln
+
+    - name: upload artifact for release-bin
+      uses: actions/upload-artifact@v2
+      with:
+        name: build-release-bin
+        path: build/bin/**/*
+
+    - name: upload artifact for release-lib
+      uses: actions/upload-artifact@v2
+      with:
+        name: build-release-lib
+        path: build/lib/**/*
+
+    - name: upload artifact for release-opencv2
+      uses: actions/upload-artifact@v2
+      with:
+        name: build-release-opencv2
+        path: build/opencv2/**/*
+
+  build-debug:
+    runs-on: windows-latest
+    timeout-minutes: 360
+
+    steps:
+    - name: Checkout OpenCV
+      uses: actions/checkout@v2
+      with:
+        clean: true
+        fetch-depth: 1
+        path: opencv
+
+    - name: Checkout OpenCV_Contrib
+      uses: actions/checkout@v2
+      with:
+        repository: opencv/opencv_contrib
+        clean: true
+        fetch-depth: 1
+        path: opencv_contrib
+        ref: 3.4.10
+
+    - name: Setup NuGet
+      uses: warrenbuckley/Setup-Nuget@v1
+
+    - name: Setup MSVC
+      uses: ilammy/msvc-dev-cmd@v1
+      #with:
+      #  arch: amd64
+      #  toolset: 16.0
       
+    - name: CMake
+      run: cmake -DBUILD_WITH_DEBUG_INFO=OFF -DBUILD_PACKAGE=OFF -DBUILD_JAVA=OFF -DBUILD_PERF_TESTS=OFF -DBUILD_DOCS=OFF -DBUILD_TESTS=OFF -DBUILD_EXAMPLES=OFF -DINSTALL_C_EXAMPLES=OFF -DINSTALL_TESTS=OFF -DOPENCV_EXTRA_MODULES_PATH=opencv_contrib/modules -S opencv -B build -G "Visual Studio 16 2019"
+
     - name: Build Debug
       working-directory: ./build
-      run: msbuild /m /p:Configuration=Debug OpenCV.sln
+      run: msbuild /m /p:Configuration=Debug OpenCV.sln /p:DebugSymbols=false /p:DebugType=None
 
-    - name: Nuget Pack for non-tags
-      working-directory: .
-      if: "!startsWith(github.ref, 'refs/tags/')"
-      run: nuget pack package\nuget\OpenCV.nuspec -version 1.0.0-dev -OutputFileNamesWithoutVersion -OutputDirectory dist
-      
-    - name: Extract tag name
-      if: startsWith(github.ref, 'refs/tags/')
-      uses: olegtarasov/get-tag@v2
-      id: tagName
+    - name: upload artifact for debug-bin
+      uses: actions/upload-artifact@v2
       with:
-        tagRegex: "([0-9\\.]+.*)"  # Optional. Returns specified group text as tag name. Full tag string is returned if regex is not defined.
-        tagRegexGroup: 1 # Optional. Default is 1.
+        name: build-debug-bin
+        path: build/bin/**/*
 
-    - name: Nuget Pack/Push for tags
-      if: startsWith(github.ref, 'refs/tags/')
-      working-directory: .
+    - name: upload artifact for debug-lib
+      uses: actions/upload-artifact@v2
+      with:
+        name: build-debug-lib
+        path: build/lib/**/*
+
+    - name: upload artifact for debug-opencv2
+      uses: actions/upload-artifact@v2
+      with:
+        name: build-debug-opencv2
+        path: build/opencv2/**/*
+
+  package:
+    runs-on: windows-latest
+    timeout-minutes: 360
+    needs: [build-debug, build-release]
+
+    steps:
+    - name: Checkout OpenCV
+      uses: actions/checkout@v2
+      with:
+        clean: true
+        fetch-depth: 1
+        path: opencv
+
+    - name: Checkout OpenCV_Contrib
+      uses: actions/checkout@v2
+      with:
+        repository: opencv/opencv_contrib
+        clean: true
+        fetch-depth: 1
+        path: opencv_contrib
+        ref: 3.4.10
+
+    - name: Download release output - bin
+      uses: actions/download-artifact@v2
+      with:
+        name: build-release-bin
+        path: opencv/build/bin
+
+    - name: Download release output - lib
+      uses: actions/download-artifact@v2
+      with:
+        name: build-release-lib
+        path: opencv/build/lib
+
+    - name: Download release output - opencv2
+      uses: actions/download-artifact@v2
+      with:
+        name: build-release-opencv2
+        path: opencv/build/opencv2
+
+    - name: Download debug output - bin
+      uses: actions/download-artifact@v2
+      with:
+        name: build-debug-bin
+        path: opencv/build/bin
+
+    - name: Download debug output - lib
+      uses: actions/download-artifact@v2
+      with:
+        name: build-debug-lib
+        path: opencv/build/lib
+
+    - name: Download debug output - opencv2
+      uses: actions/download-artifact@v2
+      with:
+        name: build-debug-opencv2
+        path: opencv/build/opencv2
+
+    - name: Display structure of downloaded files
+      run: dir
+      working-directory: opencv/build
+
+    - name: Display structure of package files
+      run: dir -R package
+      working-directory: opencv
+
+    - name: nuget pack for non-tags
+      working-directory: opencv
+      if: "!startswith(github.ref, 'refs/tags/')"
+      run: nuget pack package\nuget\opencv.nuspec -version 1.0.0-dev -outputfilenameswithoutversion -outputdirectory dist
+
+    - name: upload package artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: nuget
+        path: dist/*.nupkg
+
+    - name: extract tag name
+      if: startswith(github.ref, 'refs/tags/')
+      uses: olegtarasov/get-tag@v2
+      id: tagname
+      with:
+        tagregex: "([0-9\\.]+.*)"  # optional. returns specified group text as tag name. full tag string is returned if regex is not defined.
+        tagregexgroup: 1 # optional. default is 1.
+
+    - name: nuget pack/push for tags
+      if: startswith(github.ref, 'refs/tags/')
+      working-directory: opencv
       run: |
-        nuget pack package\nuget\OpenCV.nuspec -version ${{env.GIT_TAG_NAME}} -OutputFileNamesWithoutVersion -OutputDirectory dist
-        nuget push dist\wuganhao.OpenCV.nupkg -ApiKey ${{secrets.nuget_api_key}} -Source https://api.nuget.org/v3/index.json
+        nuget pack package\nuget\opencv.nuspec -version ${{env.git_tag_name}} -outputfilenameswithoutversion -outputdirectory dist
+        nuget push dist\wuganhao.opencv.nupkg -apikey ${{secrets.nuget_api_key}} -source https://api.nuget.org/v3/index.json

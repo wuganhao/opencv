@@ -24,4 +24,5 @@ build
 node_modules
 /dist/
 /CMakeFiles/
+CMakeSettings.json
 /CMakeCache.txt

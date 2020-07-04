@@ -176,6 +176,10 @@ jobs:
       run: dir
       working-directory: build
 
+    - name: Display structure of package files
+      run: dir -R opencv/package
+      working-directory: build
+
     - name: nuget pack for non-tags
       working-directory: .
       if: "!startswith(github.ref, 'refs/tags/')"

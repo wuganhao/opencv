@@ -36,6 +36,6 @@
   </ItemGroup>
   <Target Name="DeployOpenCVArtifacts">
     <Error Text="Package 'wuganhao.OpenCV' only support 64bit build" Condition="'$(Platform)'!='x64'" />
-    <Copy SourceFiles="@(OpenCVArtifacts)" DestinationFolder="$(SolutionDir)\bin\$(Configuration)" />
+    <Copy SourceFiles="@(OpenCVArtifacts)" DestinationFolder="$(TargetDir)\" />
   </Target>
 </Project>

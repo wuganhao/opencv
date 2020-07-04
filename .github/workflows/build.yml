@@ -35,7 +35,7 @@ jobs:
       #  toolset: 16.0
       
     - name: CMake
-      run: cmake -DOPENCV_EXTRA_MODULES_PATH=opencv_contrib/modules -S opencv -B build -G "Visual Studio 16 2019"
+      run: cmake -DBUILD_DOCS=OFF -DBUILD_TESTS=OFF -DBUILD_EXAMPLES=OFF -DINSTALL_C_EXAMPLES=OFF -DINSTALL_TESTS=OFF -DOPENCV_EXTRA_MODULES_PATH=opencv_contrib/modules -S opencv -B build -G "Visual Studio 16 2019"
 
     - name: Build Release
       working-directory: ./build
@@ -90,7 +90,7 @@ jobs:
       #  toolset: 16.0
       
     - name: CMake
-      run: cmake -DOPENCV_EXTRA_MODULES_PATH=opencv_contrib/modules -S opencv -B build -G "Visual Studio 16 2019"
+      run: cmake -DBUILD_DOCS=OFF -DBUILD_TESTS=OFF -DBUILD_EXAMPLES=OFF -DINSTALL_C_EXAMPLES=OFF -DINSTALL_TESTS=OFF -DOPENCV_EXTRA_MODULES_PATH=opencv_contrib/modules -S opencv -B build -G "Visual Studio 16 2019"
 
     - name: Build Debug
       working-directory: ./build

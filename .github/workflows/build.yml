@@ -174,11 +174,11 @@ jobs:
 
     - name: Display structure of downloaded files
       run: dir
-      working-directory: build
+      working-directory: opencv/build
 
     - name: Display structure of package files
       run: dir -R opencv/package
-      working-directory: build
+      working-directory: opencv/build
 
     - name: nuget pack for non-tags
       working-directory: opencv

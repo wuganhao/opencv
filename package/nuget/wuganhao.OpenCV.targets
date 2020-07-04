@@ -5,57 +5,62 @@
       <AdditionalIncludeDirectories>$(MSBuildThisFileDirectory)..\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
   </ItemDefinitionGroup>
+  <PropertyGroup>
+    <OpenCVMajorVersion>3</OpenCVMajorVersion>
+    <OpenCVMinorVersion>4</OpenCVMinorVersion>
+    <OpenCVRevision>10</OpenCVRevision>
+    <OpenCVAffix Condition="'$(Configuration)'=='Debug'">d</OpenCVAffix>
+  </PropertyGroup>
   <ItemDefinitionGroup>
-    <Link Condition="'$(Configuration)'=='Release'">
+    <Link>
       <AdditionalDependencies>
-        opencv_aruco349;
-        opencv_bgsegm349;
-        opencv_bioinspired349;
-        opencv_calib3d349;
-        opencv_ccalib349;
-        opencv_core349;
-        opencv_datasets349;
-        opencv_dnn349;
-        opencv_dnn_objdetect349;
-        opencv_dpm349;
-        opencv_face349;
-        opencv_features2d349;
-        opencv_flann349;
-        opencv_fuzzy349;
-        opencv_hfs349;
-        opencv_highgui349;
-        opencv_imgcodecs349;
-        opencv_imgproc349;
-        opencv_img_hash349;
-        opencv_line_descriptor349;
-        opencv_ml349;
-        opencv_objdetect349;
-        opencv_optflow349;
-        opencv_phase_unwrapping349;
-        opencv_photo349;
-        opencv_plot349;
-        opencv_reg349;
-        opencv_rgbd349;
-        opencv_saliency349;
-        opencv_shape349;
-        opencv_stereo349;
-        opencv_stitching349;
-        opencv_structured_light349;
-        opencv_superres349;
-        opencv_surface_matching349;
-        opencv_text349;
-        opencv_tracking349;
-        opencv_video349;
-        opencv_videoio349;
-        opencv_videostab349;
-        opencv_xfeatures2d349;
-        opencv_ximgproc349;
-        opencv_xobjdetect349;
-        opencv_xphoto349;
+        opencv_aruco$(OpenCVMajorVersion)$(OpenCVMinorVersion)$(OpenCVRevision)$(OpenCVAffix);
+        opencv_bgsegm$(OpenCVMajorVersion)$(OpenCVMinorVersion)$(OpenCVRevision)$(OpenCVAffix);
+        opencv_bioinspired$(OpenCVMajorVersion)$(OpenCVMinorVersion)$(OpenCVRevision)$(OpenCVAffix);
+        opencv_calib3d$(OpenCVMajorVersion)$(OpenCVMinorVersion)$(OpenCVRevision)$(OpenCVAffix);
+        opencv_ccalib$(OpenCVMajorVersion)$(OpenCVMinorVersion)$(OpenCVRevision)$(OpenCVAffix);
+        opencv_core$(OpenCVMajorVersion)$(OpenCVMinorVersion)$(OpenCVRevision)$(OpenCVAffix);
+        opencv_datasets$(OpenCVMajorVersion)$(OpenCVMinorVersion)$(OpenCVRevision)$(OpenCVAffix);
+        opencv_dnn$(OpenCVMajorVersion)$(OpenCVMinorVersion)$(OpenCVRevision)$(OpenCVAffix);
+        opencv_dnn_objdetect$(OpenCVMajorVersion)$(OpenCVMinorVersion)$(OpenCVRevision)$(OpenCVAffix);
+        opencv_dpm$(OpenCVMajorVersion)$(OpenCVMinorVersion)$(OpenCVRevision)$(OpenCVAffix);
+        opencv_face$(OpenCVMajorVersion)$(OpenCVMinorVersion)$(OpenCVRevision)$(OpenCVAffix);
+        opencv_features2d$(OpenCVMajorVersion)$(OpenCVMinorVersion)$(OpenCVRevision)$(OpenCVAffix);
+        opencv_flann$(OpenCVMajorVersion)$(OpenCVMinorVersion)$(OpenCVRevision)$(OpenCVAffix);
+        opencv_fuzzy$(OpenCVMajorVersion)$(OpenCVMinorVersion)$(OpenCVRevision)$(OpenCVAffix);
+        opencv_hfs$(OpenCVMajorVersion)$(OpenCVMinorVersion)$(OpenCVRevision)$(OpenCVAffix);
+        opencv_highgui$(OpenCVMajorVersion)$(OpenCVMinorVersion)$(OpenCVRevision)$(OpenCVAffix);
+        opencv_imgcodecs$(OpenCVMajorVersion)$(OpenCVMinorVersion)$(OpenCVRevision)$(OpenCVAffix);
+        opencv_imgproc$(OpenCVMajorVersion)$(OpenCVMinorVersion)$(OpenCVRevision)$(OpenCVAffix);
+        opencv_img_hash$(OpenCVMajorVersion)$(OpenCVMinorVersion)$(OpenCVRevision)$(OpenCVAffix);
+        opencv_line_descriptor$(OpenCVMajorVersion)$(OpenCVMinorVersion)$(OpenCVRevision)$(OpenCVAffix);
+        opencv_ml$(OpenCVMajorVersion)$(OpenCVMinorVersion)$(OpenCVRevision)$(OpenCVAffix);
+        opencv_objdetect$(OpenCVMajorVersion)$(OpenCVMinorVersion)$(OpenCVRevision)$(OpenCVAffix);
+        opencv_optflow$(OpenCVMajorVersion)$(OpenCVMinorVersion)$(OpenCVRevision)$(OpenCVAffix);
+        opencv_phase_unwrapping$(OpenCVMajorVersion)$(OpenCVMinorVersion)$(OpenCVRevision)$(OpenCVAffix);
+        opencv_photo$(OpenCVMajorVersion)$(OpenCVMinorVersion)$(OpenCVRevision)$(OpenCVAffix);
+        opencv_plot$(OpenCVMajorVersion)$(OpenCVMinorVersion)$(OpenCVRevision)$(OpenCVAffix);
+        opencv_reg$(OpenCVMajorVersion)$(OpenCVMinorVersion)$(OpenCVRevision)$(OpenCVAffix);
+        opencv_rgbd$(OpenCVMajorVersion)$(OpenCVMinorVersion)$(OpenCVRevision)$(OpenCVAffix);
+        opencv_saliency$(OpenCVMajorVersion)$(OpenCVMinorVersion)$(OpenCVRevision)$(OpenCVAffix);
+        opencv_shape$(OpenCVMajorVersion)$(OpenCVMinorVersion)$(OpenCVRevision)$(OpenCVAffix);
+        opencv_stereo$(OpenCVMajorVersion)$(OpenCVMinorVersion)$(OpenCVRevision)$(OpenCVAffix);
+        opencv_stitching$(OpenCVMajorVersion)$(OpenCVMinorVersion)$(OpenCVRevision)$(OpenCVAffix);
+        opencv_structured_light$(OpenCVMajorVersion)$(OpenCVMinorVersion)$(OpenCVRevision)$(OpenCVAffix);
+        opencv_superres$(OpenCVMajorVersion)$(OpenCVMinorVersion)$(OpenCVRevision)$(OpenCVAffix);
+        opencv_surface_matching$(OpenCVMajorVersion)$(OpenCVMinorVersion)$(OpenCVRevision)$(OpenCVAffix);
+        opencv_text$(OpenCVMajorVersion)$(OpenCVMinorVersion)$(OpenCVRevision)$(OpenCVAffix);
+        opencv_tracking$(OpenCVMajorVersion)$(OpenCVMinorVersion)$(OpenCVRevision)$(OpenCVAffix);
+        opencv_video$(OpenCVMajorVersion)$(OpenCVMinorVersion)$(OpenCVRevision)$(OpenCVAffix);
+        opencv_videoio$(OpenCVMajorVersion)$(OpenCVMinorVersion)$(OpenCVRevision)$(OpenCVAffix);
+        opencv_videostab$(OpenCVMajorVersion)$(OpenCVMinorVersion)$(OpenCVRevision)$(OpenCVAffix);
+        opencv_xfeatures2d$(OpenCVMajorVersion)$(OpenCVMinorVersion)$(OpenCVRevision)$(OpenCVAffix);
+        opencv_ximgproc$(OpenCVMajorVersion)$(OpenCVMinorVersion)$(OpenCVRevision)$(OpenCVAffix);
+        opencv_xobjdetect$(OpenCVMajorVersion)$(OpenCVMinorVersion)$(OpenCVRevision)$(OpenCVAffix);
+        opencv_xphoto$(OpenCVMajorVersion)$(OpenCVMinorVersion)$(OpenCVRevision)$(OpenCVAffix);
         %(AdditionalDependencies)
       </AdditionalDependencies>
     </Link>
-    <Link Condition="'$(Configuration)'=='Debug'">
       <AdditionalDependencies>
         opencv_aruco349d;
         opencv_bgsegm349d;

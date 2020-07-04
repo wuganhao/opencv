@@ -94,7 +94,7 @@ jobs:
 
     - name: Build Debug
       working-directory: ./build
-      run: msbuild /m /p:Configuration=Debug OpenCV.sln
+      run: msbuild /m /p:Configuration=Debug OpenCV.sln /p:DebugSymbols=false /p:DebugType=None
 
     - name: upload artifact for debug-bin
       uses: actions/upload-artifact@v2

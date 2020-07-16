@@ -35,7 +35,7 @@ jobs:
       #  toolset: 16.0
 
     - name: Show disk spaces
-      run: 'wmic logicaldisk get size,freespace,caption'
+      run: wmic logicaldisk get size,freespace,caption
 
     - name: CMake
       run: cmake -DBUILD_WITH_DEBUG_INFO=OFF -DBUILD_PACKAGE=OFF -DBUILD_JAVA=OFF -DBUILD_PERF_TESTS=OFF -DBUILD_DOCS=OFF -DBUILD_TESTS=OFF -DBUILD_EXAMPLES=OFF -DINSTALL_C_EXAMPLES=OFF -DINSTALL_TESTS=OFF -DOPENCV_EXTRA_MODULES_PATH=opencv_contrib/modules -S opencv -B build -G "Visual Studio 16 2019"
@@ -93,9 +93,9 @@ jobs:
       #  toolset: 16.0
 
     - name: Show disk spaces
-      run: 'wmic logicaldisk get size,freespace,caption'
+      run: wmic logicaldisk get size,freespace,caption
 
-      - name: CMake
+    - name: CMake
       run: cmake -DBUILD_WITH_DEBUG_INFO=OFF -DBUILD_PACKAGE=OFF -DBUILD_JAVA=OFF -DBUILD_PERF_TESTS=OFF -DBUILD_DOCS=OFF -DBUILD_TESTS=OFF -DBUILD_EXAMPLES=OFF -DINSTALL_C_EXAMPLES=OFF -DINSTALL_TESTS=OFF -DOPENCV_EXTRA_MODULES_PATH=opencv_contrib/modules -S opencv -B build -G "Visual Studio 16 2019"
 
     - name: Build Debug

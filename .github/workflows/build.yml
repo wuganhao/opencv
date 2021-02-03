@@ -25,8 +25,11 @@ jobs:
         path: opencv_contrib
         ref: 4.5.1
 
-    - name: Setup NuGet
-      uses: warrenbuckley/Setup-Nuget@v1
+    - name: Setup Nuget
+      uses: nuget/setup-nuget@v1
+      with:
+        nuget-api-key: ${{ secrets.nuget_api_key }}
+        nuget-version: '5.x'
 
     - name: Setup MSVC
       uses: ilammy/msvc-dev-cmd@v1
@@ -80,8 +83,11 @@ jobs:
         path: opencv_contrib
         ref: 4.5.1
 
-    - name: Setup NuGet
-      uses: warrenbuckley/Setup-Nuget@v1
+    - name: Setup Nuget
+      uses: nuget/setup-nuget@v1
+      with:
+        nuget-api-key: ${{ secrets.nuget_api_key }}
+        nuget-version: '5.x'
 
     - name: Setup MSVC
       uses: ilammy/msvc-dev-cmd@v1

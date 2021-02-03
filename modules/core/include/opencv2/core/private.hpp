@@ -191,6 +191,8 @@ T* allocSingletonNew() { return new(allocSingletonNewBuffer(sizeof(T))) T(); }
 *                     Structures and macros for integration with IPP                     *
 \****************************************************************************************/
 
+#define OPENCV_IPP_REDUCE_SIZE 1
+
 // Temporary disabled named IPP region. Accuracy
 #define IPP_DISABLE_PYRAMIDS_UP         1 // Different results
 #define IPP_DISABLE_PYRAMIDS_DOWN       1 // Different results
@@ -649,15 +651,6 @@ typedef enum CvStatus
     CV_OK                       =   CV_NO_ERR
 }
 CvStatus;
-
-#ifdef HAVE_TEGRA_OPTIMIZATION
-namespace tegra {
-
-CV_EXPORTS bool useTegra();
-CV_EXPORTS void setUseTegra(bool flag);
-
-}
-#endif
 
 #ifdef ENABLE_INSTRUMENTATION
 namespace cv

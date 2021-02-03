@@ -1,9 +1,6 @@
 {
-    "const_private_list" : [
-        "OPPONENTEXTRACTOR",
-        "GRIDDETECTOR",
-        "PYRAMIDDETECTOR",
-        "DYNAMICDETECTOR"
+    "class_ignore_list" : [
+        "SimpleBlobDetector"
     ],
     "type_dict" : {
         "Feature2D": {

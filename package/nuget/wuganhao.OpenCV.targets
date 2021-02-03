@@ -6,9 +6,9 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <PropertyGroup>
-    <OpenCVMajorVersion>3</OpenCVMajorVersion>
-    <OpenCVMinorVersion>4</OpenCVMinorVersion>
-    <OpenCVRevision>10</OpenCVRevision>
+    <OpenCVMajorVersion>4</OpenCVMajorVersion>
+    <OpenCVMinorVersion>0</OpenCVMinorVersion>
+    <OpenCVRevision>1</OpenCVRevision>
     <OpenCVAffix Condition="'$(Configuration)'=='Debug'">d</OpenCVAffix>
   </PropertyGroup>
   <ItemDefinitionGroup>

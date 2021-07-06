@@ -30,10 +30,10 @@ jobs:
         ref: ${{ env.opencv_contrib_ref }}
 
     - name: Install CUDA
-      env: 
+      uses: Jimver/cuda-toolkit@v0.2.3
+      id: cuda-toolkit
+      with:
         cuda: ${{ env.cuda }}
-      shell: powershell
-      run: .\scripts\actions\install_cuda_windows.ps1
 
     - name: nvcc check
       shell: powershell
@@ -99,10 +99,10 @@ jobs:
         ref: ${{ env.opencv_contrib_ref }}
 
     - name: Install CUDA
-      env: 
+      uses: Jimver/cuda-toolkit@v0.2.3
+      id: cuda-toolkit
+      with:
         cuda: ${{ env.cuda }}
-      shell: powershell
-      run: .\scripts\actions\install_cuda_windows.ps1
 
     - name: nvcc check
       shell: powershell
@@ -166,7 +166,7 @@ jobs:
         clean: true
         fetch-depth: 1
         path: opencv_contrib
-        ref: 3.4.15
+        ref: ${{ env.opencv_contrib_ref }}
 
     - name: Setup NuGet
       uses: nuget/setup-nuget@v1.0.5

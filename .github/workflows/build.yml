@@ -193,11 +193,8 @@ jobs:
 
     - name: extract tag name
       if: startswith(github.ref, 'refs/tags/')
-      uses: olegtarasov/get-tag@v2
+      uses: olegtarasov/get-tag@v2.1.1
       id: tagname
-      with:
-        tagregex: "([0-9\\.]+.*)"  # optional. returns specified group text as tag name. full tag string is returned if regex is not defined.
-        tagregexgroup: 1 # optional. default is 1.
 
     - name: nuget pack/push for tags
       if: startswith(github.ref, 'refs/tags/')

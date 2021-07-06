@@ -1,5 +1,4 @@
 # ignore dot files/directories
-.*
 !.gitignore
 
 *.autosave
@@ -23,4 +22,7 @@ bin/
 *.tlog
 build
 node_modules
+/dist/
+/CMakeFiles/
 CMakeSettings.json
+/CMakeCache.txt

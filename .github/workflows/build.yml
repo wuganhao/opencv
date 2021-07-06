@@ -3,6 +3,10 @@ name: Push Build
 on:
   push:
 
+env:
+  cuda: "11.3.0"
+  opencv_contrib_ref: '3.4.15'
+
 jobs:
   build-release:
     runs-on: windows-latest
@@ -23,7 +27,21 @@ jobs:
         clean: true
         fetch-depth: 1
         path: opencv_contrib
-        ref: 3.4.15
+        ref: ${{ env.opencv_contrib_ref }}
+
+    - name: Install CUDA
+      env: 
+        cuda: ${{ env.cuda }}
+      shell: powershell
+      run: .\scripts\actions\install_cuda_windows.ps1
+
+    - name: nvcc check
+      shell: powershell
+      run: |
+        nvcc -V
+        ls $env:CUDA_PATH
+        ls $env:CUDA_PATH\bin
+        ls $env:CUDA_PATH\include
 
     - name: Setup MSVC
       uses: ilammy/msvc-dev-cmd@v1
@@ -78,7 +96,21 @@ jobs:
         clean: true
         fetch-depth: 1
         path: opencv_contrib
-        ref: 3.4.15
+        ref: ${{ env.opencv_contrib_ref }}
+
+    - name: Install CUDA
+      env: 
+        cuda: ${{ env.cuda }}
+      shell: powershell
+      run: .\scripts\actions\install_cuda_windows.ps1
+
+    - name: nvcc check
+      shell: powershell
+      run: |
+        nvcc -V
+        ls $env:CUDA_PATH
+        ls $env:CUDA_PATH\bin
+        ls $env:CUDA_PATH\include
 
     - name: Setup MSVC
       uses: ilammy/msvc-dev-cmd@v1

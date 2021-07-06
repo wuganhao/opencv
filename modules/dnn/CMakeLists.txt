@@ -66,6 +66,9 @@ ocv_warnings_disable(CMAKE_CXX_FLAGS
     -Winvalid-offsetof                 # Apple Clang (attr_value.pb.cc)
 )
 
+set(include_dirs "")
+set(libs "")
+
 if(PROTOBUF_UPDATE_FILES)
   file(GLOB proto_files "${CMAKE_CURRENT_LIST_DIR}/src/tensorflow/*.proto" "${CMAKE_CURRENT_LIST_DIR}/src/caffe/opencv-caffe.proto" "${CMAKE_CURRENT_LIST_DIR}/src/onnx/opencv-onnx.proto")
   set(PROTOBUF_GENERATE_CPP_APPEND_PATH ON) # required for tensorflow
@@ -76,10 +79,15 @@ else()
   set(fw_inc "${CMAKE_CURRENT_LIST_DIR}/misc/caffe" "${CMAKE_CURRENT_LIST_DIR}/misc/tensorflow" "${CMAKE_CURRENT_LIST_DIR}/misc/onnx")
 endif()
 
-set(include_dirs ${fw_inc})
+list(APPEND include_dirs ${fw_inc})
+list(APPEND libs ${Protobuf_LIBRARIES})
+if(NOT BUILD_PROTOBUF)
+  list(APPEND include_dirs ${Protobuf_INCLUDE_DIRS})
+endif()
+
 set(sources_options "")
 
-set(libs libprotobuf ${LAPACK_LIBRARIES})
+list(APPEND libs ${LAPACK_LIBRARIES})
 if(OPENCV_DNN_OPENCL AND HAVE_OPENCL)
   list(APPEND include_dirs ${OPENCL_INCLUDE_DIRS})
 else()
@@ -107,7 +115,13 @@ endif()
 
 set(dnn_runtime_libs "")
 if(INF_ENGINE_TARGET)
-  ocv_option(OPENCV_DNN_IE_NN_BUILDER_2019 "Build with Inference Engine NN Builder API support" ON)  # future: NOT HAVE_NGRAPH
+  set(use_nn_builder OFF)
+  if(TARGET inference_engine_nn_builder OR # custom imported target
+     TARGET IE::inference_engine_nn_builder OR # default imported target via InferenceEngineConfig.cmake
+     INF_ENGINE_RELEASE VERSION_LESS "2020000000") # compatibility with older versions on IE
+    set(use_nn_builder ON)
+  endif()
+  ocv_option(OPENCV_DNN_IE_NN_BUILDER_2019 "Build with Inference Engine NN Builder API support" ${use_nn_builder})  # future: NOT HAVE_NGRAPH
   if(OPENCV_DNN_IE_NN_BUILDER_2019)
     message(STATUS "DNN: Enabling Inference Engine NN Builder API support")
     add_definitions(-DHAVE_DNN_IE_NN_BUILDER_2019=1)
@@ -134,16 +148,20 @@ ocv_add_perf_tests(${INF_ENGINE_TARGET}
     FILES Include ${perf_hdrs}
 )
 
-ocv_option(${the_module}_PERF_CAFFE "Add performance tests of Caffe framework" OFF)
-ocv_option(${the_module}_PERF_CLCAFFE "Add performance tests of clCaffe framework" OFF)
+ocv_option(OPENCV_DNN_PERF_CAFFE "Add performance tests of Caffe framework" OFF)
+ocv_option(OPENCV_DNN_PERF_CLCAFFE "Add performance tests of clCaffe framework" OFF)
 if(BUILD_PERF_TESTS)
-  if (${the_module}_PERF_CAFFE)
+  if (OPENCV_DNN_PERF_CAFFE
+      OR ${the_module}_PERF_CAFFE  # compatibility for deprecated option
+  )
     find_package(Caffe QUIET)
     if (Caffe_FOUND)
       add_definitions(-DHAVE_CAFFE=1)
       ocv_target_link_libraries(opencv_perf_dnn caffe)
     endif()
-  elseif(${the_module}_PERF_CLCAFFE)
+  elseif(OPENCV_DNN_PERF_CLCAFFE
+         OR ${the_module}_PERF_CAFFE  # compatibility for deprecated option
+  )
     find_package(Caffe QUIET)
     if (Caffe_FOUND)
       add_definitions(-DHAVE_CLCAFFE=1)

@@ -255,6 +255,8 @@ class CppHeaderParser(object):
             l = l.replace("CV_EXPORTS_W_SIMPLE", "")
             modlist.append("/Simple")
         npos = l.find("CV_EXPORTS_AS")
+        if npos < 0:
+            npos = l.find('CV_WRAP_AS')
         if npos >= 0:
             macro_arg, npos3 = self.get_macro_arg(l, npos)
             modlist.append("=" + macro_arg)
@@ -430,9 +432,10 @@ class CppHeaderParser(object):
         # filter off some common prefixes, which are meaningless for Python wrappers.
         # note that we do not strip "static" prefix, which does matter;
         # it means class methods, not instance methods
-        decl_str = self.batch_replace(decl_str, [("static inline", ""), ("inline", ""),\
-            ("CV_EXPORTS_W", ""), ("CV_EXPORTS", ""), ("CV_CDECL", ""), ("CV_WRAP ", " "), ("CV_INLINE", ""),
-            ("CV_DEPRECATED", ""), ("CV_DEPRECATED_EXTERNAL", "")]).strip()
+        decl_str = self.batch_replace(decl_str, [("static inline", ""), ("inline", ""), ("explicit ", ""),
+                                                 ("CV_EXPORTS_W", ""), ("CV_EXPORTS", ""), ("CV_CDECL", ""),
+                                                 ("CV_WRAP ", " "), ("CV_INLINE", ""),
+                                                 ("CV_DEPRECATED", ""), ("CV_DEPRECATED_EXTERNAL", "")]).strip()
 
 
         if decl_str.strip().startswith('virtual'):
@@ -657,6 +660,10 @@ class CppHeaderParser(object):
         stack_top = self.block_stack[-1]
         context = stack_top[self.BLOCK_TYPE]
 
+        if stmt.startswith('inline namespace'):
+            # emulate anonymous namespace
+            return "namespace", "", True, None
+
         stmt_type = ""
         if end_token == "{":
             stmt_type = "block"
@@ -820,7 +827,11 @@ class CppHeaderParser(object):
                     continue
                 state = SCAN
                 l = re.sub(r'//(.+)?', '', l).strip()  # drop // comment
-                if l == '#if 0' or l == '#if defined(__OPENCV_BUILD)' or l == '#ifdef __OPENCV_BUILD':
+                if l in [
+                    '#if 0',
+                    '#if defined(__OPENCV_BUILD)', '#ifdef __OPENCV_BUILD',
+                    '#if !defined(OPENCV_BINDING_PARSER)', '#ifndef OPENCV_BINDING_PARSER',
+                ]:
                     state = DIRECTIVE_IF_0
                     depth_if_0 = 1
                 continue

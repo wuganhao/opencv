@@ -47,9 +47,9 @@
 #include "opencv2/core/async.hpp"
 
 #if !defined CV_DOXYGEN && !defined CV_STATIC_ANALYSIS && !defined CV_DNN_DONT_ADD_EXPERIMENTAL_NS
-#define CV__DNN_EXPERIMENTAL_NS_BEGIN namespace experimental_dnn_34_v17 {
+#define CV__DNN_EXPERIMENTAL_NS_BEGIN namespace experimental_dnn_34_v22 {
 #define CV__DNN_EXPERIMENTAL_NS_END }
-namespace cv { namespace dnn { namespace experimental_dnn_34_v17 { } using namespace experimental_dnn_34_v17; }}
+namespace cv { namespace dnn { namespace experimental_dnn_34_v22 { } using namespace experimental_dnn_34_v22; }}
 #else
 #define CV__DNN_EXPERIMENTAL_NS_BEGIN
 #define CV__DNN_EXPERIMENTAL_NS_END
@@ -354,8 +354,11 @@ CV__DNN_EXPERIMENTAL_NS_BEGIN
                                      const int requiredOutputs,
                                      std::vector<MatShape> &outputs,
                                      std::vector<MatShape> &internals) const;
+
         virtual int64 getFLOPS(const std::vector<MatShape> &inputs,
                                const std::vector<MatShape> &outputs) const {CV_UNUSED(inputs); CV_UNUSED(outputs); return 0;}
+
+        virtual bool updateMemoryShapes(const std::vector<MatShape> &inputs);
 
         CV_PROP String name; //!< Name of the layer instance, can be used for logging or other internal purposes.
         CV_PROP String type; //!< Type name which was used for creating layer by layer factory.
@@ -709,9 +712,11 @@ CV__DNN_EXPERIMENTAL_NS_BEGIN
         CV_WRAP void enableFusion(bool fusion);
 
         /** @brief Returns overall time for inference and timings (in ticks) for layers.
+         *
          * Indexes in returned vector correspond to layers ids. Some layers can be fused with others,
-         * in this case zero ticks count will be return for that skipped layers.
-         * @param timings vector for tick timings for all layers.
+         * in this case zero ticks count will be return for that skipped layers. Supported by DNN_BACKEND_OPENCV on DNN_TARGET_CPU only.
+         *
+         * @param[out] timings vector for tick timings for all layers.
          * @return overall ticks for model inference.
          */
         CV_WRAP int64 getPerfProfile(CV_OUT std::vector<double>& timings);

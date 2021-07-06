@@ -11,7 +11,6 @@
 
 #ifdef HAVE_INF_ENGINE
 #include <ie_extension.h>
-#include <ie_plugin_dispatcher.hpp>
 #endif  // HAVE_INF_ENGINE
 
 #include <opencv2/core/utils/configuration.private.hpp>
@@ -652,6 +651,22 @@ InferenceEngine::Core& getCore(const std::string& id)
 }
 #endif
 
+static bool detectArmPlugin_()
+{
+    InferenceEngine::Core& ie = getCore("CPU");
+    const std::vector<std::string> devices = ie.GetAvailableDevices();
+    for (std::vector<std::string>::const_iterator i = devices.begin(); i != devices.end(); ++i)
+    {
+        if (i->find("CPU") != std::string::npos)
+        {
+            const std::string name = ie.GetMetric(*i, METRIC_KEY(FULL_DEVICE_NAME)).as<std::string>();
+            CV_LOG_INFO(NULL, "CPU plugin: " << name);
+            return name.find("arm_compute::NEON") != std::string::npos;
+        }
+    }
+    return false;
+}
+
 #if !defined(OPENCV_DNN_IE_VPU_TYPE_DEFAULT)
 static bool detectMyriadX_()
 {
@@ -832,18 +847,18 @@ void InfEngineBackendNet::initPlugin(InferenceEngine::CNNNetwork& net)
                 CV_LOG_INFO(NULL, "DNN-IE: Can't register OpenCV custom layers extension: " << e.what());
             }
 #endif
-#ifndef _WIN32
             // Limit the number of CPU threads.
 #if INF_ENGINE_VER_MAJOR_LE(INF_ENGINE_RELEASE_2019R1)
+#ifndef _WIN32
             enginePtr->SetConfig({{
                 InferenceEngine::PluginConfigParams::KEY_CPU_THREADS_NUM, format("%d", getNumThreads()),
             }}, 0);
+#endif  // _WIN32
 #else
             if (device_name == "CPU")
                 ie.SetConfig({{
                     InferenceEngine::PluginConfigParams::KEY_CPU_THREADS_NUM, format("%d", getNumThreads()),
                 }}, device_name);
-#endif
 #endif
         }
 #if INF_ENGINE_VER_MAJOR_LE(INF_ENGINE_RELEASE_2019R1)
@@ -889,6 +904,13 @@ bool InfEngineBackendNet::isInitialized()
 #else
     return isInit;
 #endif
+}
+
+void InfEngineBackendNet::reset()
+{
+    allBlobs.clear();
+    infRequests.clear();
+    isInit = false;
 }
 
 void InfEngineBackendNet::addBlobs(const std::vector<cv::Ptr<BackendWrapper> >& ptrs)
@@ -1156,6 +1178,12 @@ bool isMyriadX()
      return myriadX;
 }
 
+bool isArmComputePlugin()
+{
+    static bool armPlugin = getInferenceEngineCPUType() == CV_DNN_INFERENCE_ENGINE_CPU_TYPE_ARM_COMPUTE;
+    return armPlugin;
+}
+
 static std::string getInferenceEngineVPUType_()
 {
     static std::string param_vpu_type = utils::getConfigurationParameterString("OPENCV_DNN_IE_VPU_TYPE", "");
@@ -1193,6 +1221,14 @@ cv::String getInferenceEngineVPUType()
     return vpu_type;
 }
 
+cv::String getInferenceEngineCPUType()
+{
+    static cv::String cpu_type = detectArmPlugin_() ?
+                                 CV_DNN_INFERENCE_ENGINE_CPU_TYPE_ARM_COMPUTE :
+                                 CV_DNN_INFERENCE_ENGINE_CPU_TYPE_X86;
+    return cpu_type;
+}
+
 #else  // HAVE_INF_ENGINE
 
 cv::String getInferenceEngineBackendType()
@@ -1205,6 +1241,11 @@ cv::String setInferenceEngineBackendType(const cv::String& newBackendType)
     CV_Error(Error::StsNotImplemented, "This OpenCV build doesn't include InferenceEngine support");
 }
 cv::String getInferenceEngineVPUType()
+{
+    CV_Error(Error::StsNotImplemented, "This OpenCV build doesn't include InferenceEngine support");
+}
+
+cv::String getInferenceEngineCPUType()
 {
     CV_Error(Error::StsNotImplemented, "This OpenCV build doesn't include InferenceEngine support");
 }

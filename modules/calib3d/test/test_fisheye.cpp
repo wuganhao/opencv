@@ -101,7 +101,7 @@ TEST_F(fisheyeTest, projectPoints)
     EXPECT_MAT_NEAR(distorted0, distorted2, 1e-10);
 }
 
-TEST_F(fisheyeTest, DISABLED_undistortImage)
+TEST_F(fisheyeTest, undistortImage)
 {
     cv::Matx33d theK = this->K;
     cv::Mat theD = cv::Mat(this->D);
@@ -390,6 +390,12 @@ TEST_F(fisheyeTest, EstimateUncertainties)
 
 TEST_F(fisheyeTest, stereoRectify)
 {
+    // For consistency purposes
+    CV_StaticAssert(
+        static_cast<int>(cv::CALIB_ZERO_DISPARITY) == static_cast<int>(cv::fisheye::CALIB_ZERO_DISPARITY),
+        "For the purpose of continuity the following should be true: cv::CALIB_ZERO_DISPARITY == cv::fisheye::CALIB_ZERO_DISPARITY"
+    );
+
     const std::string folder =combine(datasets_repository_path, "calib-3_stereo_from_JY");
 
     cv::Size calibration_size = this->imageSize, requested_size = calibration_size;
@@ -402,7 +408,7 @@ TEST_F(fisheyeTest, stereoRectify)
     double balance = 0.0, fov_scale = 1.1;
     cv::Mat R1, R2, P1, P2, Q;
     cv::fisheye::stereoRectify(K1, D1, K2, D2, calibration_size, theR, theT, R1, R2, P1, P2, Q,
-                      cv::CALIB_ZERO_DISPARITY, requested_size, balance, fov_scale);
+                      cv::fisheye::CALIB_ZERO_DISPARITY, requested_size, balance, fov_scale);
 
     // Collected with these CMake flags: -DWITH_IPP=OFF -DCV_ENABLE_INTRINSICS=OFF -DCV_DISABLE_OPTIMIZATION=ON -DCMAKE_BUILD_TYPE=Debug
     cv::Matx33d R1_ref(
@@ -449,7 +455,10 @@ TEST_F(fisheyeTest, stereoRectify)
             << "Q =" << std::endl << Q << std::endl;
     }
 
-#if 1 // Debug code
+    if (cvtest::debugLevel == 0)
+        return;
+    // DEBUG code is below
+
     cv::Mat lmapx, lmapy, rmapx, rmapy;
     //rewrite for fisheye
     cv::fisheye::initUndistortRectifyMap(K1, D1, R1, P1, requested_size, CV_32F, lmapx, lmapy);
@@ -482,7 +491,6 @@ TEST_F(fisheyeTest, stereoRectify)
 
         cv::imwrite(cv::format("fisheye_rectification_AB_%03d.png", i), rectification);
     }
-#endif
 }
 
 TEST_F(fisheyeTest, stereoCalibrate)
@@ -654,6 +662,51 @@ TEST_F(fisheyeTest, CalibrationWithDifferentPointsNumber)
 
     cv::fisheye::calibrate(objectPoints, imagePoints, cv::Size(100, 100), theK, theD,
         cv::noArray(), cv::noArray(), flag, cv::TermCriteria(3, 20, 1e-6));
+}
+
+TEST_F(fisheyeTest, estimateNewCameraMatrixForUndistortRectify)
+{
+    cv::Size size(1920, 1080);
+
+    cv::Mat K_fullhd(3, 3, cv::DataType<double>::type);
+    K_fullhd.at<double>(0, 0) = 600.44477382;
+    K_fullhd.at<double>(0, 1) = 0.0;
+    K_fullhd.at<double>(0, 2) = 992.06425788;
+
+    K_fullhd.at<double>(1, 0) = 0.0;
+    K_fullhd.at<double>(1, 1) = 578.99298055;
+    K_fullhd.at<double>(1, 2) = 549.26826242;
+
+    K_fullhd.at<double>(2, 0) = 0.0;
+    K_fullhd.at<double>(2, 1) = 0.0;
+    K_fullhd.at<double>(2, 2) = 1.0;
+
+    cv::Mat K_new_truth(3, 3, cv::DataType<double>::type);
+
+    K_new_truth.at<double>(0, 0) = 387.4809086880343;
+    K_new_truth.at<double>(0, 1) = 0.0;
+    K_new_truth.at<double>(0, 2) = 1036.669802754649;
+
+    K_new_truth.at<double>(1, 0) = 0.0;
+    K_new_truth.at<double>(1, 1) = 373.6375700303157;
+    K_new_truth.at<double>(1, 2) = 538.8373261247601;
+
+    K_new_truth.at<double>(2, 0) = 0.0;
+    K_new_truth.at<double>(2, 1) = 0.0;
+    K_new_truth.at<double>(2, 2) = 1.0;
+
+    cv::Mat D_fullhd(4, 1, cv::DataType<double>::type);
+    D_fullhd.at<double>(0, 0) = -0.05090103223466704;
+    D_fullhd.at<double>(1, 0) = 0.030944413642173308;
+    D_fullhd.at<double>(2, 0) = -0.021509225493198905;
+    D_fullhd.at<double>(3, 0) = 0.0043378096628297145;
+    cv::Mat E = cv::Mat::eye(3, 3, cv::DataType<double>::type);
+
+    cv::Mat K_new(3, 3, cv::DataType<double>::type);
+
+    cv::fisheye::estimateNewCameraMatrixForUndistortRectify(K_fullhd, D_fullhd, size, E, K_new, 0.0, size);
+
+    EXPECT_MAT_NEAR(K_new, K_new_truth, 1e-6);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

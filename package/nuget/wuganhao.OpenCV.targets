@@ -33,6 +33,7 @@
   <ItemGroup>
     <OpenCVArtifacts Condition="'$(Configuration)'=='Release'" Include="$(MSBuildThisFileDirectory)..\lib\native\x64\release\*.dll" />
     <OpenCVArtifacts Condition="'$(Configuration)'=='Debug'"   Include="$(MSBuildThisFileDirectory)..\lib\native\x64\debug\*.dll" />
+    <OpenCVArtifacts Condition="'$(Configuration)'=='Debug'"   Include="$(MSBuildThisFileDirectory)..\lib\native\x64\debug\*.pdb" />
   </ItemGroup>
   <Target Name="DeployOpenCVArtifacts">
     <Error Text="Package 'wuganhao.OpenCV' only support 64bit build" Condition="'$(Platform)'!='x64'" />

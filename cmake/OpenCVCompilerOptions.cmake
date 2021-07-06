@@ -8,13 +8,27 @@ function(access_CMAKE_COMPILER_IS_CCACHE)
   endif()
 endfunction()
 variable_watch(CMAKE_COMPILER_IS_CCACHE access_CMAKE_COMPILER_IS_CCACHE)
-if(ENABLE_CCACHE AND NOT OPENCV_COMPILER_IS_CCACHE AND NOT CMAKE_GENERATOR MATCHES "Xcode")
+if(ENABLE_CCACHE AND NOT OPENCV_COMPILER_IS_CCACHE)
   # This works fine with Unix Makefiles and Ninja generators
   find_host_program(CCACHE_PROGRAM ccache)
   if(CCACHE_PROGRAM)
     message(STATUS "Looking for ccache - found (${CCACHE_PROGRAM})")
     get_property(__OLD_RULE_LAUNCH_COMPILE GLOBAL PROPERTY RULE_LAUNCH_COMPILE)
-    if(__OLD_RULE_LAUNCH_COMPILE)
+    if(CMAKE_GENERATOR MATCHES "Xcode")
+      configure_file("${CMAKE_CURRENT_LIST_DIR}/templates/xcode-launch-c.in" "${CMAKE_BINARY_DIR}/xcode-launch-c")
+      configure_file("${CMAKE_CURRENT_LIST_DIR}/templates/xcode-launch-cxx.in" "${CMAKE_BINARY_DIR}/xcode-launch-cxx")
+      execute_process(COMMAND chmod a+rx
+          "${CMAKE_BINARY_DIR}/xcode-launch-c"
+          "${CMAKE_BINARY_DIR}/xcode-launch-cxx"
+      )
+      # Xcode project attributes
+      set(CMAKE_XCODE_ATTRIBUTE_CC         "${CMAKE_BINARY_DIR}/xcode-launch-c")
+      set(CMAKE_XCODE_ATTRIBUTE_CXX        "${CMAKE_BINARY_DIR}/xcode-launch-cxx")
+      set(CMAKE_XCODE_ATTRIBUTE_LD         "${CMAKE_BINARY_DIR}/xcode-launch-c")
+      set(CMAKE_XCODE_ATTRIBUTE_LDPLUSPLUS "${CMAKE_BINARY_DIR}/xcode-launch-cxx")
+      set(OPENCV_COMPILER_IS_CCACHE 1)
+      message(STATUS "ccache: enable support through Xcode project properties")
+    elseif(__OLD_RULE_LAUNCH_COMPILE)
       message(STATUS "Can't replace CMake compiler launcher")
     else()
       set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE "${CCACHE_PROGRAM}")
@@ -120,7 +134,6 @@ if(CV_GCC OR CV_CLANG)
   add_extra_compiler_option(-Wshadow)
   add_extra_compiler_option(-Wsign-promo)
   add_extra_compiler_option(-Wuninitialized)
-  add_extra_compiler_option(-Winit-self)
   if(CV_GCC AND (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 6.0) AND (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 7.0))
     add_extra_compiler_option(-Wno-psabi)
   endif()
@@ -151,7 +164,7 @@ if(CV_GCC OR CV_CLANG)
     if(CV_GCC AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 5.0)
       add_extra_compiler_option(-Wno-missing-field-initializers)  # GCC 4.x emits warnings about {}, fixed in GCC 5+
     endif()
-    if(CV_CLANG AND NOT CMAKE_CXX_COMPILER_VERSION VERSION_LESS 10.0)
+    if(CV_CLANG AND NOT CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang" AND NOT CMAKE_CXX_COMPILER_VERSION VERSION_LESS 10.0)
       add_extra_compiler_option(-Wno-deprecated-enum-enum-conversion)
       add_extra_compiler_option(-Wno-deprecated-anon-enum-enum-conversion)
     endif()
@@ -164,7 +177,13 @@ if(CV_GCC OR CV_CLANG)
   endif()
 
   # We need pthread's
-  if(UNIX AND NOT ANDROID AND NOT (APPLE AND CV_CLANG)) # TODO
+  if((UNIX
+          AND NOT ANDROID
+          AND NOT (APPLE AND CV_CLANG)
+          AND NOT EMSCRIPTEN
+      )
+      OR (EMSCRIPTEN AND WITH_PTHREADS_PF)  # https://github.com/opencv/opencv/issues/20285
+  )
     add_extra_compiler_option(-pthread)
   endif()
 
@@ -189,7 +208,6 @@ if(CV_GCC OR CV_CLANG)
 
   # Profiling?
   if(ENABLE_PROFILING)
-    add_extra_compiler_option("-pg -g")
     # turn off incompatible options
     foreach(flags CMAKE_CXX_FLAGS CMAKE_C_FLAGS CMAKE_CXX_FLAGS_RELEASE CMAKE_C_FLAGS_RELEASE CMAKE_CXX_FLAGS_DEBUG CMAKE_C_FLAGS_DEBUG
                   OPENCV_EXTRA_FLAGS_RELEASE OPENCV_EXTRA_FLAGS_DEBUG OPENCV_EXTRA_C_FLAGS OPENCV_EXTRA_CXX_FLAGS)
@@ -197,6 +215,9 @@ if(CV_GCC OR CV_CLANG)
       string(REPLACE "-ffunction-sections" "" ${flags} "${${flags}}")
       string(REPLACE "-fdata-sections" "" ${flags} "${${flags}}")
     endforeach()
+    # -pg should be placed both in the linker and in the compiler settings
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -pg")
+    add_extra_compiler_option("-pg -g")
   else()
     if(MSVC)
       # TODO: Clang/C2 is not supported
@@ -210,9 +231,11 @@ if(CV_GCC OR CV_CLANG)
         if(APPLE)
           set(OPENCV_EXTRA_EXE_LINKER_FLAGS "${OPENCV_EXTRA_EXE_LINKER_FLAGS} -Wl,-dead_strip")
           set(OPENCV_EXTRA_SHARED_LINKER_FLAGS "${OPENCV_EXTRA_SHARED_LINKER_FLAGS} -Wl,-dead_strip")
+          set(OPENCV_EXTRA_MODULE_LINKER_FLAGS "${OPENCV_EXTRA_MODULE_LINKER_FLAGS} -Wl,-dead_strip")
         else()
           set(OPENCV_EXTRA_EXE_LINKER_FLAGS "${OPENCV_EXTRA_EXE_LINKER_FLAGS} -Wl,--gc-sections")
           set(OPENCV_EXTRA_SHARED_LINKER_FLAGS "${OPENCV_EXTRA_SHARED_LINKER_FLAGS} -Wl,--gc-sections")
+          set(OPENCV_EXTRA_MODULE_LINKER_FLAGS "${OPENCV_EXTRA_MODULE_LINKER_FLAGS} -Wl,--gc-sections")
         endif()
       endif()
     endif()
@@ -264,6 +287,7 @@ if(MSVC)
     set(OPENCV_EXTRA_FLAGS_RELEASE "${OPENCV_EXTRA_FLAGS_RELEASE} /Zi")
     set(OPENCV_EXTRA_EXE_LINKER_FLAGS_RELEASE "${OPENCV_EXTRA_EXE_LINKER_FLAGS_RELEASE} /debug")
     set(OPENCV_EXTRA_SHARED_LINKER_FLAGS_RELEASE "${OPENCV_EXTRA_SHARED_LINKER_FLAGS_RELEASE} /debug")
+    set(OPENCV_EXTRA_MODULE_LINKER_FLAGS_RELEASE "${OPENCV_EXTRA_MODULE_LINKER_FLAGS_RELEASE} /debug")
   endif()
 
   # Remove unreferenced functions: function level linking
@@ -331,6 +355,7 @@ if(NOT OPENCV_SKIP_LINK_AS_NEEDED)
     if(HAVE_LINK_AS_NEEDED)
       set(OPENCV_EXTRA_EXE_LINKER_FLAGS "${OPENCV_EXTRA_EXE_LINKER_FLAGS} ${_option}")
       set(OPENCV_EXTRA_SHARED_LINKER_FLAGS "${OPENCV_EXTRA_SHARED_LINKER_FLAGS} ${_option}")
+      set(OPENCV_EXTRA_MODULE_LINKER_FLAGS "${OPENCV_EXTRA_MODULE_LINKER_FLAGS} ${_option}")
     endif()
   endif()
 endif()
@@ -349,6 +374,9 @@ if(NOT OPENCV_SKIP_EXTRA_COMPILER_FLAGS)
   set(CMAKE_SHARED_LINKER_FLAGS         "${CMAKE_SHARED_LINKER_FLAGS} ${OPENCV_EXTRA_SHARED_LINKER_FLAGS}")
   set(CMAKE_SHARED_LINKER_FLAGS_RELEASE "${CMAKE_SHARED_LINKER_FLAGS_RELEASE} ${OPENCV_EXTRA_SHARED_LINKER_FLAGS_RELEASE}")
   set(CMAKE_SHARED_LINKER_FLAGS_DEBUG   "${CMAKE_SHARED_LINKER_FLAGS_DEBUG} ${OPENCV_EXTRA_SHARED_LINKER_FLAGS_DEBUG}")
+  set(CMAKE_MODULE_LINKER_FLAGS         "${CMAKE_MODULE_LINKER_FLAGS} ${OPENCV_EXTRA_MODULE_LINKER_FLAGS}")
+  set(CMAKE_MODULE_LINKER_FLAGS_RELEASE "${CMAKE_MODULE_LINKER_FLAGS_RELEASE} ${OPENCV_EXTRA_MODULE_LINKER_FLAGS_RELEASE}")
+  set(CMAKE_MODULE_LINKER_FLAGS_DEBUG   "${CMAKE_MODULE_LINKER_FLAGS_DEBUG} ${OPENCV_EXTRA_MODULE_LINKER_FLAGS_DEBUG}")
 endif()
 
 if(MSVC)

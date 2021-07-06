@@ -14,9 +14,6 @@ It has been tested with the motempl sample program
 First Patch:  August 24, 2004 Travis Wood   TravisOCV@tkwood.com
 For Release:  OpenCV-Linux Beta4  opencv-0.9.6
 Tested On:    LMLBT44 with 8 video inputs
-Problems?     Post your questions at answers.opencv.org,
-              Report bugs at code.opencv.org,
-              Submit your fixes at https://github.com/opencv/opencv/
 Patched Comments:
 
 TW: The cv cam utils that came with the initial release of OpenCV for LINUX Beta4
@@ -1033,15 +1030,16 @@ bool CvCaptureCAM_V4L::grabFrame()
             return false;
         }
 
+        // No need to skip this if the first read returns false
+        /* preparation is ok */
+        FirstCapture = false;
+
 #if defined(V4L_ABORT_BADJPEG)
         // skip first frame. it is often bad -- this is unnotied in traditional apps,
         //  but could be fatal if bad jpeg is enabled
         if (!read_frame_v4l2())
             return false;
 #endif
-
-        /* preparation is ok */
-        FirstCapture = false;
     }
     // In the case that the grab frame was without retrieveFrame
     if (bufferIndex >= 0)

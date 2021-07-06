@@ -49,6 +49,7 @@
   @defgroup imgcodecs Image file reading and writing
   @{
     @defgroup imgcodecs_c C API
+    @defgroup imgcodecs_flags Flags used for image file reading and writing
     @defgroup imgcodecs_ios iOS glue
   @}
 */
@@ -58,6 +59,9 @@ namespace cv
 {
 
 //! @addtogroup imgcodecs
+//! @{
+
+//! @addtogroup imgcodecs_flags
 //! @{
 
 //! Imread flags
@@ -129,6 +133,8 @@ enum ImwritePAMFlags {
        IMWRITE_PAM_FORMAT_RGB = 4,
        IMWRITE_PAM_FORMAT_RGB_ALPHA = 5,
      };
+
+//! @} imgcodecs_flags
 
 /** @brief Loads an image from a file.
 
@@ -204,20 +210,31 @@ can be saved using this function, with these exceptions:
 - PNG images with an alpha channel can be saved using this function. To do this, create
 8-bit (or 16-bit) 4-channel image BGRA, where the alpha channel goes last. Fully transparent pixels
 should have alpha set to 0, fully opaque pixels should have alpha set to 255/65535 (see the code sample below).
+- Multiple images (vector of Mat) can be saved in TIFF format (see the code sample below).
+
+If the image format is not supported, the image will be converted to 8-bit unsigned (CV_8U) and saved that way.
 
 If the format, depth or channel order is different, use
 Mat::convertTo and cv::cvtColor to convert it before saving. Or, use the universal FileStorage I/O
 functions to save the image to XML or YAML format.
 
-The sample below shows how to create a BGRA image and save it to a PNG file. It also demonstrates how to set custom
-compression parameters:
+The sample below shows how to create a BGRA image, how to set custom compression parameters and save it to a PNG file.
+It also demonstrates how to save multiple images in a TIFF file:
 @include snippets/imgcodecs_imwrite.cpp
 @param filename Name of the file.
-@param img Image to be saved.
+@param img (Mat or vector of Mat) Image or Images to be saved.
 @param params Format-specific parameters encoded as pairs (paramId_1, paramValue_1, paramId_2, paramValue_2, ... .) see cv::ImwriteFlags
 */
 CV_EXPORTS_W bool imwrite( const String& filename, InputArray img,
               const std::vector<int>& params = std::vector<int>());
+
+/// @overload multi-image overload for bindings
+CV_WRAP static inline
+bool imwritemulti(const String& filename, InputArrayOfArrays img,
+                  const std::vector<int>& params = std::vector<int>())
+{
+    return imwrite(filename, img, params);
+}
 
 /** @brief Reads an image from a buffer in memory.
 

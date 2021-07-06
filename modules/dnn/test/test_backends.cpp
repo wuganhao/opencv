@@ -101,6 +101,9 @@ public:
 TEST_P(DNNTestNetwork, AlexNet)
 {
     applyTestTag(CV_TEST_TAG_MEMORY_1GB);
+    if (backend == DNN_BACKEND_HALIDE)  // Realization contains wrong number of Images (1) for realizing pipeline with 2 outputs
+        applyTestTag(CV_TEST_TAG_DNN_SKIP_HALIDE);
+
     processNet("dnn/bvlc_alexnet.caffemodel", "dnn/bvlc_alexnet.prototxt",
                Size(227, 227), "prob",
                target == DNN_TARGET_OPENCL ? "dnn/halide_scheduler_opencl_alexnet.yml" :
@@ -114,6 +117,9 @@ TEST_P(DNNTestNetwork, ResNet_50)
         (target == DNN_TARGET_CPU ? CV_TEST_TAG_MEMORY_512MB : CV_TEST_TAG_MEMORY_1GB),
         CV_TEST_TAG_DEBUG_LONG
     );
+    if (backend == DNN_BACKEND_HALIDE)  // Realization contains wrong number of Images (1) for realizing pipeline with 2 outputs
+        applyTestTag(CV_TEST_TAG_DNN_SKIP_HALIDE);
+
     processNet("dnn/ResNet-50-model.caffemodel", "dnn/ResNet-50-deploy.prototxt",
                Size(224, 224), "prob",
                target == DNN_TARGET_OPENCL ? "dnn/halide_scheduler_opencl_resnet_50.yml" :
@@ -123,6 +129,9 @@ TEST_P(DNNTestNetwork, ResNet_50)
 
 TEST_P(DNNTestNetwork, SqueezeNet_v1_1)
 {
+    if (backend == DNN_BACKEND_HALIDE)  // Realization contains wrong number of Images (1) for realizing pipeline with 2 outputs
+        applyTestTag(CV_TEST_TAG_DNN_SKIP_HALIDE);
+
     processNet("dnn/squeezenet_v1.1.caffemodel", "dnn/squeezenet_v1.1.prototxt",
                Size(227, 227), "prob",
                target == DNN_TARGET_OPENCL ? "dnn/halide_scheduler_opencl_squeezenet_v1_1.yml" :
@@ -133,6 +142,9 @@ TEST_P(DNNTestNetwork, SqueezeNet_v1_1)
 TEST_P(DNNTestNetwork, GoogLeNet)
 {
     applyTestTag(target == DNN_TARGET_CPU ? "" : CV_TEST_TAG_MEMORY_512MB);
+    if (backend == DNN_BACKEND_HALIDE)  // Realization contains wrong number of Images (1) for realizing pipeline with 2 outputs
+        applyTestTag(CV_TEST_TAG_DNN_SKIP_HALIDE);
+
     processNet("dnn/bvlc_googlenet.caffemodel", "dnn/bvlc_googlenet.prototxt",
                Size(224, 224), "prob");
     expectNoFallbacksFromIE(net);
@@ -141,6 +153,9 @@ TEST_P(DNNTestNetwork, GoogLeNet)
 TEST_P(DNNTestNetwork, Inception_5h)
 {
     applyTestTag(CV_TEST_TAG_MEMORY_512MB);
+    if (backend == DNN_BACKEND_HALIDE)  // Realization contains wrong number of Images (1) for realizing pipeline with 2 outputs
+        applyTestTag(CV_TEST_TAG_DNN_SKIP_HALIDE);
+
     double l1 = default_l1, lInf = default_lInf;
     if (backend == DNN_BACKEND_INFERENCE_ENGINE_NN_BUILDER_2019 && (target == DNN_TARGET_CPU || target == DNN_TARGET_OPENCL))
     {
@@ -157,6 +172,9 @@ TEST_P(DNNTestNetwork, Inception_5h)
 TEST_P(DNNTestNetwork, ENet)
 {
     applyTestTag(target == DNN_TARGET_CPU ? "" : CV_TEST_TAG_MEMORY_512MB);
+    if (backend == DNN_BACKEND_HALIDE)  // Realization contains wrong number of Images (1) for realizing pipeline with 2 outputs
+        applyTestTag(CV_TEST_TAG_DNN_SKIP_HALIDE);
+
     if (backend == DNN_BACKEND_INFERENCE_ENGINE_NN_BUILDER_2019)
         applyTestTag(CV_TEST_TAG_DNN_SKIP_IE_NN_BUILDER);
     if (backend == DNN_BACKEND_INFERENCE_ENGINE_NGRAPH)
@@ -178,7 +196,7 @@ TEST_P(DNNTestNetwork, MobileNet_SSD_Caffe)
     Mat inp = blobFromImage(sample, 1.0f / 127.5, Size(300, 300), Scalar(127.5, 127.5, 127.5), false);
     float diffScores = (target == DNN_TARGET_OPENCL_FP16 || target == DNN_TARGET_MYRIAD) ? 1.5e-2 : 0.0;
     float diffSquares = (target == DNN_TARGET_MYRIAD) ? 0.063  : 0.0;
-    float detectionConfThresh = (target == DNN_TARGET_MYRIAD) ? 0.252  : FLT_MIN;
+    float detectionConfThresh = (target == DNN_TARGET_MYRIAD) ? 0.262  : FLT_MIN;
          processNet("dnn/MobileNetSSD_deploy.caffemodel", "dnn/MobileNetSSD_deploy.prototxt",
                     inp, "detection_out", "", diffScores, diffSquares, detectionConfThresh);
     expectNoFallbacksFromIE(net);
@@ -283,8 +301,8 @@ TEST_P(DNNTestNetwork, OpenPose_pose_coco)
         applyTestTag(CV_TEST_TAG_DNN_SKIP_IE_MYRIAD_X, CV_TEST_TAG_DNN_SKIP_IE_VERSION);
 #endif
 
-    const float l1 = (target == DNN_TARGET_MYRIAD) ? 0.0056 : 0.0;
-    const float lInf = (target == DNN_TARGET_MYRIAD) ? 0.072 : 0.0;
+    const float l1 = (target == DNN_TARGET_MYRIAD) ? 0.009 : 0.0;
+    const float lInf = (target == DNN_TARGET_MYRIAD) ? 0.09 : 0.0;
     processNet("dnn/openpose_pose_coco.caffemodel", "dnn/openpose_pose_coco.prototxt",
                Size(46, 46), "", "", l1, lInf);
     expectNoFallbacksFromIE(net);
@@ -303,8 +321,8 @@ TEST_P(DNNTestNetwork, OpenPose_pose_mpi)
 #endif
 
     // output range: [-0.001, 0.97]
-    const float l1 = (target == DNN_TARGET_MYRIAD) ? 0.012 : 0.0;
-    const float lInf = (target == DNN_TARGET_MYRIAD || target == DNN_TARGET_OPENCL_FP16) ? 0.16 : 0.0;
+    const float l1 = (target == DNN_TARGET_MYRIAD) ? 0.02 : 0.0;
+    const float lInf = (target == DNN_TARGET_MYRIAD || target == DNN_TARGET_OPENCL_FP16) ? 0.2 : 0.0;
     processNet("dnn/openpose_pose_mpi.caffemodel", "dnn/openpose_pose_mpi.prototxt",
                Size(46, 46), "", "", l1, lInf);
     expectNoFallbacksFromIE(net);
@@ -390,6 +408,8 @@ TEST_P(DNNTestNetwork, DenseNet_121)
     if (target == DNN_TARGET_OPENCL_FP16)
     {
         l1 = 2e-2; lInf = 9e-2;
+        if (backend == DNN_BACKEND_INFERENCE_ENGINE_NGRAPH)
+            lInf = 0.1f;
     }
     else if (target == DNN_TARGET_MYRIAD)
     {

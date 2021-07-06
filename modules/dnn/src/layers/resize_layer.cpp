@@ -11,7 +11,11 @@
 
 #ifdef HAVE_DNN_NGRAPH
 #include "../ie_ngraph.hpp"
+#if INF_ENGINE_VER_MAJOR_GT(INF_ENGINE_RELEASE_2020_4)
+#include <ngraph/op/interpolate.hpp>
+#else
 #include <ngraph/op/experimental/layers/interpolate.hpp>
+#endif
 #endif
 
 namespace cv { namespace dnn {
@@ -19,8 +23,8 @@ namespace cv { namespace dnn {
 class ResizeLayerImpl : public ResizeLayer
 {
 public:
-    ResizeLayerImpl(const LayerParams& params) : zoomFactorWidth(params.get<int>("zoom_factor_x", params.get<int>("zoom_factor", 0))),
-                                                 zoomFactorHeight(params.get<int>("zoom_factor_y", params.get<int>("zoom_factor", 0))),
+    ResizeLayerImpl(const LayerParams& params) : zoomFactorWidth(params.get<float>("zoom_factor_x", params.get<float>("zoom_factor", 0))),
+                                                 zoomFactorHeight(params.get<float>("zoom_factor_y", params.get<float>("zoom_factor", 0))),
                                                  scaleWidth(0), scaleHeight(0)
     {
         setParamsFrom(params);
@@ -35,9 +39,10 @@ public:
             CV_Assert(params.has("zoom_factor_x") && params.has("zoom_factor_y"));
         }
         interpolation = params.get<String>("interpolation");
-        CV_Assert(interpolation == "nearest" || interpolation == "opencv_linear" || interpolation == "bilinear");
+        CV_Check(interpolation, interpolation == "nearest" || interpolation == "opencv_linear" || interpolation == "bilinear", "");
 
         alignCorners = params.get<bool>("align_corners", false);
+        halfPixelCenters = params.get<bool>("half_pixel_centers", false);
     }
 
     bool getMemoryShapes(const std::vector<MatShape> &inputs,
@@ -45,10 +50,15 @@ public:
                          std::vector<MatShape> &outputs,
                          std::vector<MatShape> &internals) const CV_OVERRIDE
     {
-        CV_Assert_N(inputs.size() == 1, inputs[0].size() == 4);
+        CV_Assert_N(inputs.size() == 1 || inputs.size() == 2, inputs[0].size() == 4);
         outputs.resize(1, inputs[0]);
-        outputs[0][2] = zoomFactorHeight > 0 ? (outputs[0][2] * zoomFactorHeight) : outHeight;
-        outputs[0][3] = zoomFactorWidth > 0 ? (outputs[0][3] * zoomFactorWidth) : outWidth;
+        if (inputs.size() == 1) {
+            outputs[0][2] = zoomFactorHeight > 0 ? (outputs[0][2] * zoomFactorHeight) : outHeight;
+            outputs[0][3] = zoomFactorWidth > 0 ? (outputs[0][3] * zoomFactorWidth) : outWidth;
+        } else {
+            outputs[0][2] = inputs[1][2];
+            outputs[0][3] = inputs[1][3];
+        }
         // We can work in-place (do nothing) if input shape == output shape.
         return (outputs[0][2] == inputs[0][2]) && (outputs[0][3] == inputs[0][3]);
     }
@@ -105,7 +115,7 @@ public:
 
         Mat& inp = inputs[0];
         Mat& out = outputs[0];
-        if (interpolation == "nearest" || interpolation == "opencv_linear")
+        if ((interpolation == "nearest" && !alignCorners && !halfPixelCenters) || interpolation == "opencv_linear" || (interpolation == "bilinear" && halfPixelCenters))
         {
             InterpolationFlags mode = interpolation == "nearest" ? INTER_NEAREST : INTER_LINEAR;
             for (size_t n = 0; n < inputs[0].size[0]; ++n)
@@ -114,6 +124,54 @@ public:
                 {
                     resize(getPlane(inp, n, ch), getPlane(out, n, ch),
                            Size(outWidth, outHeight), 0, 0, mode);
+                }
+            }
+        }
+        else if (interpolation == "nearest")
+        {
+            const int inpHeight = inp.size[2];
+            const int inpWidth = inp.size[3];
+            const int inpSpatialSize = inpHeight * inpWidth;
+            const int outSpatialSize = outHeight * outWidth;
+            const int numPlanes = inp.size[0] * inp.size[1];
+            CV_Assert_N(inp.isContinuous(), out.isContinuous());
+
+            Mat inpPlanes = inp.reshape(1, numPlanes * inpHeight);
+            Mat outPlanes = out.reshape(1, numPlanes * outHeight);
+
+            float heightOffset = 0.0f;
+            float widthOffset = 0.0f;
+
+            if (halfPixelCenters)
+            {
+                heightOffset = 0.5f * scaleHeight;
+                widthOffset = 0.5f * scaleWidth;
+            }
+
+            for (int y = 0; y < outHeight; ++y)
+            {
+                float input_y = y * scaleHeight + heightOffset;
+                int y0 = halfPixelCenters ? std::floor(input_y) : lroundf(input_y);
+                y0 = std::min(y0, inpHeight - 1);
+
+                const float* inpData_row = inpPlanes.ptr<float>(y0);
+
+                for (int x = 0; x < outWidth; ++x)
+                {
+                    float input_x = x * scaleWidth + widthOffset;
+                    int x0 = halfPixelCenters ? std::floor(input_x) : lroundf(input_x);
+                    x0 = std::min(x0, inpWidth - 1);
+
+                    float* outData = outPlanes.ptr<float>(y, x);
+                    const float* inpData_row_c = inpData_row;
+
+                    for (int c = 0; c < numPlanes; ++c)
+                    {
+                        *outData = inpData_row_c[x0];
+
+                        inpData_row_c += inpSpatialSize;
+                        outData += outSpatialSize;
+                    }
                 }
             }
         }
@@ -199,6 +257,7 @@ public:
     {
         auto& ieInpNode = nodes[0].dynamicCast<InfEngineNgraphNode>()->node;
 
+#if INF_ENGINE_VER_MAJOR_LE(INF_ENGINE_RELEASE_2021_2)
         ngraph::op::InterpolateAttrs attrs;
         attrs.pads_begin.push_back(0);
         attrs.pads_end.push_back(0);
@@ -217,16 +276,48 @@ public:
         std::vector<int64_t> shape = {outHeight, outWidth};
         auto out_shape = std::make_shared<ngraph::op::Constant>(ngraph::element::i64, ngraph::Shape{2}, shape.data());
         auto interp = std::make_shared<ngraph::op::Interpolate>(ieInpNode, out_shape, attrs);
+#else
+        ngraph::op::v4::Interpolate::InterpolateAttrs attrs;
+
+        if (interpolation == "nearest") {
+            attrs.mode = ngraph::op::v4::Interpolate::InterpolateMode::nearest;
+            attrs.coordinate_transformation_mode = ngraph::op::v4::Interpolate::CoordinateTransformMode::half_pixel;
+        } else if (interpolation == "bilinear") {
+            attrs.mode = ngraph::op::v4::Interpolate::InterpolateMode::linear_onnx;
+            attrs.coordinate_transformation_mode = ngraph::op::v4::Interpolate::CoordinateTransformMode::asymmetric;
+        } else {
+            CV_Error(Error::StsNotImplemented, format("Unsupported interpolation: %s", interpolation.c_str()));
+        }
+        attrs.shape_calculation_mode = ngraph::op::v4::Interpolate::ShapeCalcMode::sizes;
+
+        if (alignCorners) {
+            attrs.coordinate_transformation_mode = ngraph::op::v4::Interpolate::CoordinateTransformMode::align_corners;
+        }
+
+        attrs.nearest_mode = ngraph::op::v4::Interpolate::NearestMode::round_prefer_floor;
+
+        std::vector<int64_t> shape = {outHeight, outWidth};
+        auto out_shape = std::make_shared<ngraph::op::Constant>(ngraph::element::i64, ngraph::Shape{2}, shape.data());
+
+        auto& input_shape = ieInpNode->get_shape();
+        CV_Assert_N(input_shape[2] != 0, input_shape[3] != 0);
+        std::vector<float> scales = {static_cast<float>(outHeight) / input_shape[2], static_cast<float>(outWidth) / input_shape[3]};
+        auto scales_shape = std::make_shared<ngraph::op::Constant>(ngraph::element::f32, ngraph::Shape{2}, scales.data());
+
+        auto axes = std::make_shared<ngraph::op::Constant>(ngraph::element::i64, ngraph::Shape{2}, std::vector<int64_t>{2, 3});
+        auto interp = std::make_shared<ngraph::op::v4::Interpolate>(ieInpNode, out_shape, scales_shape, axes, attrs);
+#endif
         return Ptr<BackendNode>(new InfEngineNgraphNode(interp));
     }
 #endif  // HAVE_DNN_NGRAPH
 
 protected:
     int outWidth, outHeight;
-    const int zoomFactorWidth, zoomFactorHeight;
+    const float zoomFactorWidth, zoomFactorHeight;
     String interpolation;
     float scaleWidth, scaleHeight;
     bool alignCorners;
+    bool halfPixelCenters;
 };
 
 

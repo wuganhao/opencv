@@ -23,10 +23,7 @@ jobs:
         clean: true
         fetch-depth: 1
         path: opencv_contrib
-        ref: 3.4.10
-
-    - name: Setup NuGet
-      uses: warrenbuckley/Setup-Nuget@v1
+        ref: 3.4.15
 
     - name: Setup MSVC
       uses: ilammy/msvc-dev-cmd@v1
@@ -81,10 +78,7 @@ jobs:
         clean: true
         fetch-depth: 1
         path: opencv_contrib
-        ref: 3.4.10
-
-    - name: Setup NuGet
-      uses: warrenbuckley/Setup-Nuget@v1
+        ref: 3.4.15
 
     - name: Setup MSVC
       uses: ilammy/msvc-dev-cmd@v1
@@ -140,7 +134,13 @@ jobs:
         clean: true
         fetch-depth: 1
         path: opencv_contrib
-        ref: 3.4.10
+        ref: 3.4.15
+
+    - name: Setup NuGet
+      uses: nuget/setup-nuget@v1.0.5
+      with:
+        nuget-api-key: ${{ secrets.NuGetAPIKey }}
+        nuget-version: '5.x'
 
     - name: Download release output - bin
       uses: actions/download-artifact@v2

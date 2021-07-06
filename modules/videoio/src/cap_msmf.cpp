@@ -309,7 +309,7 @@ class SourceReaderCB : public IMFSourceReaderCallback
 {
 public:
     SourceReaderCB() :
-        m_nRefCount(0), m_hEvent(CreateEvent(NULL, FALSE, FALSE, NULL)), m_bEOS(FALSE), m_hrStatus(S_OK), m_reader(NULL), m_dwStreamIndex(0)
+        m_nRefCount(0), m_hEvent(CreateEvent(NULL, FALSE, FALSE, NULL)), m_bEOS(FALSE), m_hrStatus(S_OK), m_reader(NULL), m_dwStreamIndex(0), m_lastSampleTimestamp(0)
     {
     }
 
@@ -346,8 +346,6 @@ public:
 
     STDMETHODIMP OnReadSample(HRESULT hrStatus, DWORD dwStreamIndex, DWORD dwStreamFlags, LONGLONG llTimestamp, IMFSample *pSample) CV_OVERRIDE
     {
-        CV_UNUSED(llTimestamp);
-
         HRESULT hr = 0;
         cv::AutoLock lock(m_mutex);
 
@@ -360,6 +358,7 @@ public:
                 {
                     CV_LOG_DEBUG(NULL, "videoio(MSMF): drop frame (not processed)");
                 }
+                m_lastSampleTimestamp = llTimestamp;
                 m_lastSample = pSample;
             }
         }
@@ -439,6 +438,7 @@ public:
 
     IMFSourceReader *m_reader;
     DWORD m_dwStreamIndex;
+    LONGLONG m_lastSampleTimestamp;
     _ComPtr<IMFSample>  m_lastSample;
 };
 
@@ -487,12 +487,14 @@ public:
             }
         }
     }
-    std::pair<MediaID, MediaType> findBest(const MediaType& newType)
+    std::pair<MediaID, MediaType> findBestVideoFormat(const MediaType& newType)
     {
         std::pair<MediaID, MediaType> best;
         std::map<MediaID, MediaType>::const_iterator i = formats.begin();
         for (; i != formats.end(); ++i)
         {
+            if (i->second.majorType != MFMediaType_Video)
+                continue;
             if (newType.isEmpty()) // file input - choose first returned media type
             {
                 best = *i;
@@ -770,7 +772,12 @@ bool CvCapture_MSMF::configureOutput(MediaType newType, cv::uint32_t outFormat)
 {
     FormatStorage formats;
     formats.read(videoFileSource.Get());
-    std::pair<FormatStorage::MediaID, MediaType> bestMatch = formats.findBest(newType);
+    std::pair<FormatStorage::MediaID, MediaType> bestMatch = formats.findBestVideoFormat(newType);
+    if (bestMatch.second.isEmpty())
+    {
+        CV_LOG_DEBUG(NULL, "Can not find video stream with requested parameters");
+        return false;
+    }
     dwStreamIndex = bestMatch.first.stream;
     nativeFormat = bestMatch.second;
     MediaType newFormat = nativeFormat;
@@ -905,6 +912,7 @@ bool CvCapture_MSMF::grabFrame()
             CV_LOG_WARNING(NULL, "videoio(MSMF): EOS signal. Capture stream is lost");
             return false;
         }
+        sampleTime = reader->m_lastSampleTimestamp;
         return true;
     }
     else if (isOpen)

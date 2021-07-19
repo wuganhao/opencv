@@ -4,7 +4,7 @@ on:
   push:
 
 env:
-  cuda: "11.3.1"
+  cuda: "10.2.89"
   opencv_contrib_ref: '3.4.15'
 
 jobs:
@@ -30,7 +30,7 @@ jobs:
         ref: ${{ env.opencv_contrib_ref }}
 
     - name: Install CUDA
-      uses: Jimver/cuda-toolkit@v0.2.3
+      uses: Jimver/cuda-toolkit@v0.2.4
       id: cuda-toolkit
       with:
         cuda: ${{ env.cuda }}

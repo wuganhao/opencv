@@ -29,6 +29,12 @@ jobs:
         path: opencv_contrib
         ref: ${{ env.opencv_contrib_ref }}
 
+    - name: Setup MSVC
+      uses: ilammy/msvc-dev-cmd@v1.9.0
+      #with:
+      #  arch: amd64
+      #  toolset: 16.0
+
     - name: Install CUDA
       uses: Jimver/cuda-toolkit@v0.2.4
       id: cuda-toolkit
@@ -42,12 +48,6 @@ jobs:
         ls $env:CUDA_PATH
         ls $env:CUDA_PATH\bin
         ls $env:CUDA_PATH\include
-
-    - name: Setup MSVC
-      uses: ilammy/msvc-dev-cmd@v1
-      #with:
-      #  arch: amd64
-      #  toolset: 16.0
 
     - name: Show disk spaces
       run: wmic logicaldisk get size,freespace,caption
@@ -98,6 +98,12 @@ jobs:
         path: opencv_contrib
         ref: ${{ env.opencv_contrib_ref }}
 
+    - name: Setup MSVC
+      uses: ilammy/msvc-dev-cmd@v1.9.0
+      #with:
+      #  arch: amd64
+      #  toolset: 16.0
+
     - name: Install CUDA
       uses: Jimver/cuda-toolkit@v0.2.3
       id: cuda-toolkit
@@ -111,12 +117,6 @@ jobs:
         ls $env:CUDA_PATH
         ls $env:CUDA_PATH\bin
         ls $env:CUDA_PATH\include
-
-    - name: Setup MSVC
-      uses: ilammy/msvc-dev-cmd@v1
-      #with:
-      #  arch: amd64
-      #  toolset: 16.0
 
     - name: Show disk spaces
       run: wmic logicaldisk get size,freespace,caption

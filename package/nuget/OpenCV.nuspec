@@ -10,6 +10,9 @@
     <description>OpenCV</description>
     <releaseNotes>Create OpenCV dynamic library for VS 2019</releaseNotes>
     <tags>opencv</tags>
+    <dependencies>
+      <group targetFramework="native0.0" />
+    </dependencies>
   </metadata>
   <files>
     <file src="..\..\build\lib\Release\*.lib"         target="lib\native\x64\release\" />

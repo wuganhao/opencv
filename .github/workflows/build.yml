@@ -227,7 +227,7 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: nuget
-        path: dist\*.nupkg
+        path: opencv\dist\*.nupkg
 
     - name: extract tag name
       if: startswith(github.ref, 'refs/tags/')
